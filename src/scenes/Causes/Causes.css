@@ -1,0 +1,273 @@
+.cz-stage {
+  background: radial-gradient(ellipse at 35% 50%, #0f1f19 0%, var(--forest-dark) 65%);
+}
+.cz-layout {
+  position: absolute;
+  inset: clamp(4rem, 8vh, 6rem) var(--gutter) clamp(1.5rem, 4vh, 3rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 1fr);
+  gap: clamp(1.5rem, 3vw, 4rem);
+  align-items: center;
+  max-width: var(--section-max);
+  margin-inline: auto;
+}
+.cz-system {
+  position: relative;
+  aspect-ratio: 1;
+  height: min(100%, 78vh);
+  max-width: 100%;
+  justify-self: center;
+}
+.cz-patch {
+  position: absolute;
+  inset: 9%;
+  width: 82%;
+  height: 82%;
+  overflow: visible;
+}
+.cz-halo {
+  fill: none;
+  stroke: rgb(241 236 226 / 10%);
+  stroke-width: 1;
+  stroke-dasharray: 2 6;
+}
+.cz-rim {
+  fill: none;
+  stroke: rgb(241 236 226 / 22%);
+  stroke-width: 1.2;
+}
+.cz-floor {
+  fill: #0e1d15;
+}
+.cz-tree {
+  fill: color-mix(in oklab, #1f3d2a calc((1 - var(--tone)) * 100%), #3d6b40);
+  transform-box: fill-box;
+  transform-origin: center;
+  transition:
+    opacity 700ms var(--ease-out) var(--d),
+    transform 700ms var(--ease-out) var(--d),
+    fill 700ms var(--ease-out) var(--d);
+}
+.cz-tree[data-gone='true'] {
+  opacity: 0;
+  transform: scale(0.3);
+}
+.cz-tree[data-burnt='true'] {
+  opacity: 0.85;
+  transform: scale(0.55);
+  fill: #2a211b;
+}
+.cz-vig {
+  opacity: 0;
+  transition: opacity 900ms var(--ease-out) 300ms;
+}
+.cz-patch[data-driver='agriculture'] [data-vig='agriculture'],
+.cz-patch[data-driver='grazing'] [data-vig='grazing'],
+.cz-patch[data-driver='logging'] [data-vig='logging'],
+.cz-patch[data-driver='roads'] [data-vig='roads'],
+.cz-patch[data-driver='mining'] [data-vig='mining'],
+.cz-patch[data-driver='fire'] [data-vig='fire'] {
+  opacity: 1;
+}
+.cz-field-line {
+  stroke: #7d6638;
+  stroke-width: 2;
+}
+.cz-pasture {
+  fill: #8f9363;
+}
+.cz-cattle {
+  fill: #e8e2d4;
+}
+.cz-skid {
+  fill: none;
+  stroke: #7a5a3a;
+  stroke-width: 4;
+  stroke-dasharray: 2 5;
+}
+.cz-log {
+  fill: #b98a4b;
+}
+.cz-road {
+  fill: none;
+  stroke: #c9b08a;
+  stroke-width: 7;
+  stroke-linecap: round;
+}
+.cz-road--branch {
+  stroke-width: 4;
+}
+.cz-house {
+  fill: #e6d6b8;
+}
+.cz-pit {
+  fill: #7a756c;
+  stroke: #57534b;
+  stroke-width: 2;
+}
+.cz-tailings {
+  fill: #6aa3a0;
+  opacity: 0.8;
+}
+.cz-ember {
+  fill: #c4622d;
+  animation: cz-ember 1.8s var(--ease-in-out) infinite alternate;
+}
+@keyframes cz-ember {
+  from {
+    opacity: 0.25;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Driver buttons on the pressure ring */
+.cz-drivers {
+  position: absolute;
+  inset: 0;
+}
+.cz-driver {
+  position: absolute;
+  translate: -50% -50%;
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.6rem;
+  min-width: 44px;
+  min-height: 44px;
+}
+.cz-driver-arrow {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ochre);
+  background: rgb(4 8 7 / 55%);
+  position: relative;
+  transition: background var(--dur-quick) var(--ease-out);
+}
+.cz-driver-arrow::after {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  background: var(--ochre);
+  clip-path: polygon(0 20%, 100% 50%, 0 80%);
+  rotate: var(--angle);
+}
+.cz-driver-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+  white-space: nowrap;
+  padding: 0.2em 0.5em;
+  background: rgb(4 8 7 / 55%);
+  border-radius: var(--radius-hair);
+}
+.cz-driver:hover .cz-driver-arrow,
+.cz-driver[aria-pressed='true'] .cz-driver-arrow {
+  background: var(--ochre);
+}
+.cz-driver[aria-pressed='true'] .cz-driver-arrow::after {
+  background: var(--forest-dark);
+}
+.cz-driver[aria-pressed='true'] .cz-driver-label {
+  color: var(--sunlight-soft);
+}
+
+/* Panel */
+.cz-panel {
+  display: grid;
+  gap: var(--space-4);
+  align-content: center;
+}
+.cz-instruction {
+  color: var(--sunlight-soft);
+}
+.cz-info {
+  display: grid;
+  gap: var(--space-2);
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--ochre);
+  min-height: 8rem;
+}
+.cz-info[data-visible='false'] {
+  border-color: transparent;
+}
+.cz-info-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-lead);
+}
+.cz-info .body-copy {
+  color: var(--text-primary);
+}
+.cz-info .stat-value {
+  font-size: var(--fs-lead);
+}
+.cz-reset {
+  justify-self: start;
+}
+.cz-ring {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr;
+  gap: var(--space-4);
+  align-items: center;
+  margin: var(--space-3) 0 0;
+  padding-top: var(--space-4);
+  border-top: var(--rule);
+}
+.cz-ring svg {
+  width: 7.5rem;
+  height: 7.5rem;
+}
+.cz-ring-seg {
+  fill: none;
+  stroke-width: 12;
+}
+.cz-ring-seg[data-seg='cropland'],
+.cz-ring li[data-seg='cropland'] .cz-key {
+  stroke: #b09153;
+  background: #b09153;
+}
+.cz-ring-seg[data-seg='grazing'],
+.cz-ring li[data-seg='grazing'] .cz-key {
+  stroke: #8f9363;
+  background: #8f9363;
+}
+.cz-ring-seg[data-seg='other'],
+.cz-ring li[data-seg='other'] .cz-key {
+  stroke: #57534b;
+  background: #57534b;
+}
+.cz-ring ul {
+  list-style: none;
+  margin: var(--space-2) 0;
+  padding: 0;
+  font-size: var(--fs-small);
+  display: grid;
+  gap: 0.2rem;
+}
+.cz-key {
+  display: inline-block;
+  width: 0.7em;
+  height: 0.7em;
+  margin-right: 0.3em;
+}
+.cz-nuance {
+  font-size: var(--fs-small);
+  color: var(--text-muted);
+  max-width: 34rem;
+}
+
+@media (max-width: 900px) {
+  .cz-layout {
+    position: relative;
+    inset: auto;
+    grid-template-columns: 1fr;
+    padding: 5rem var(--gutter) 2rem;
+  }
+  .cz-system {
+    height: auto;
+    width: 100%;
+  }
+}

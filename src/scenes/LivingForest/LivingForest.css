@@ -1,0 +1,407 @@
+.ls-stage {
+  background: linear-gradient(to bottom, #0c2a29 0%, #4c7562 50%, #2a2016 52%, #4a3726 100%);
+}
+
+.ls-frame {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(100vw, 177.78vh);
+  height: min(56.25vw, 100vh);
+  translate: -50% -50%;
+}
+
+.diorama {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 40%;
+}
+
+.ls-clouds ellipse {
+  fill: #6f948a;
+  opacity: 0.35;
+}
+.ls-backdrop {
+  fill: #2f5348;
+  opacity: 0.85;
+}
+.ls-mist {
+  fill: #8fb3a6;
+  opacity: 0.12;
+}
+.ls-tree {
+  fill: #12291f;
+}
+.ls-tree--small {
+  fill: #1a3427;
+}
+.ls-tree--oak {
+  fill: #0f2419;
+}
+.ls-shrubs {
+  fill: #16301f;
+}
+.ls-animal path {
+  fill: #0a1712;
+}
+.ls-animal .ls-antlers {
+  fill: none;
+  stroke: #0a1712;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+.ls-fungi {
+  fill: #c9b08a;
+  opacity: 0.85;
+}
+.ls-insects {
+  fill: #e9c77b;
+  opacity: 0.8;
+}
+.ls-litter {
+  fill: #5b4126;
+  opacity: 0.55;
+}
+.ls-pebbles {
+  fill: #6a5640;
+  opacity: 0.5;
+}
+.ls-groundwater {
+  fill: #3f7f86;
+  opacity: 0.42;
+}
+.ls-cutline {
+  stroke: #e6d6b8;
+  stroke-width: 1.2;
+  opacity: 0.35;
+}
+.ls-roots path {
+  fill: none;
+  stroke: #24170d;
+  stroke-linecap: round;
+  transition: stroke var(--dur-slow) var(--ease-out);
+}
+
+/* — Overlays — */
+.ls-ov {
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-out);
+  pointer-events: none;
+}
+.ls-frame[data-active~='tree'] .ls-ov[data-topic='tree'],
+.ls-frame[data-active~='roots'] .ls-ov[data-topic='roots'],
+.ls-frame[data-active~='soil'] .ls-ov[data-topic='soil'],
+.ls-frame[data-active~='water'] .ls-ov[data-topic='water'],
+.ls-frame[data-active~='wildlife'] .ls-ov[data-topic='wildlife'],
+.ls-frame[data-active~='air'] .ls-ov[data-topic='air'] {
+  opacity: 1;
+}
+.ls-frame[data-active~='roots'] .ls-roots path,
+.ls-frame[data-active~='tree'] .ls-roots path {
+  stroke: #b98a4b;
+}
+.ls-frame[data-active~='wildlife'] .ls-animal path {
+  fill: #2c4a35;
+}
+
+.ls-tag {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  fill: #f3dfae;
+  paint-order: stroke;
+  stroke: rgb(4 8 7 / 70%);
+  stroke-width: 4px;
+}
+.ls-flow {
+  fill: none;
+  stroke-width: 2.4;
+  stroke-dasharray: 7 9;
+  stroke-linecap: round;
+  animation: ls-dash 1.4s linear infinite;
+}
+.ls-flow--in {
+  stroke: #9fb8ad;
+}
+.ls-flow--out {
+  stroke: #f3dfae;
+}
+.ls-flow--down {
+  stroke: #7fb4c0;
+}
+.ls-flow--cycle {
+  stroke: #8cc6cf;
+  stroke-width: 3;
+}
+.ls-glow {
+  fill: #e9c77b;
+  opacity: 0.16;
+}
+.ls-thread {
+  fill: none;
+  stroke: #f1ece2;
+  stroke-width: 1;
+  stroke-dasharray: 3 5;
+  opacity: 0.75;
+  animation: ls-dash 3s linear infinite;
+}
+.ls-rain {
+  stroke: #9fc7cf;
+  stroke-width: 1.4;
+  stroke-dasharray: 10 14;
+  opacity: 0.8;
+  animation: ls-dash 0.9s linear infinite;
+}
+.ls-grains {
+  fill: #e6d6b8;
+  opacity: 0.6;
+}
+.ls-litter-lit {
+  fill: #b98a4b;
+  opacity: 0.6;
+}
+.ls-web {
+  fill: none;
+  stroke: #e9c77b;
+  stroke-width: 1.6;
+  stroke-dasharray: 2 6;
+  stroke-linecap: round;
+}
+.ls-ray {
+  stroke: #f3dfae;
+  stroke-width: 10;
+  opacity: 0.18;
+  stroke-linecap: round;
+}
+
+@keyframes ls-dash {
+  to {
+    stroke-dashoffset: -64;
+  }
+}
+
+.ls-underground-mask {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 52.4%;
+  bottom: 0;
+  background: #0b0d0a;
+  transform-origin: 50% 100%;
+}
+
+/* — Hotspots — */
+.ls-hotspots {
+  position: absolute;
+  inset: 0;
+}
+.ls-hotspot {
+  position: absolute;
+  translate: -22px -22px;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 44px;
+  padding: 0 0.6rem 0 0;
+}
+.ls-hotspot-ring {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: 50%;
+}
+.ls-hotspot-ring::before,
+.ls-hotspot-ring::after {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  border: 1.5px solid var(--sunlight-soft);
+  background: rgb(4 8 7 / 45%);
+  transition:
+    background var(--dur-quick) var(--ease-out),
+    inset var(--dur-quick) var(--ease-out);
+}
+.ls-hotspot-ring::after {
+  background: none;
+  animation: ls-pulse 2.8s var(--ease-out) infinite;
+}
+.ls-hotspot[data-seen='true'] .ls-hotspot-ring::before {
+  background: color-mix(in oklab, var(--sunlight) 35%, rgb(4 8 7 / 45%));
+}
+.ls-hotspot[aria-pressed='true'] .ls-hotspot-ring::before {
+  inset: 10px;
+  background: var(--sunlight);
+}
+.ls-hotspot:hover .ls-hotspot-ring::before {
+  inset: 10px;
+}
+@keyframes ls-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(2.1);
+    opacity: 0;
+  }
+}
+.ls-hotspot-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  padding: 0.25em 0.55em;
+  border-radius: var(--radius-hair);
+  background: rgb(4 8 7 / 62%);
+}
+.ls-hotspot[aria-pressed='true'] .ls-hotspot-label {
+  color: var(--sunlight-soft);
+}
+
+/* — Caption — */
+.ls-caption::before {
+  content: '';
+  position: absolute;
+  inset: -40% -35% -30% -40%;
+  z-index: -1;
+  background: radial-gradient(ellipse at 30% 40%, rgb(4 10 9 / 72%), transparent 68%);
+  pointer-events: none;
+}
+.ls-caption {
+  position: absolute;
+  top: clamp(4.5rem, 9vh, 7rem);
+  left: var(--gutter);
+  width: min(30rem, 40vw);
+  display: grid;
+  gap: var(--space-4);
+  z-index: var(--z-interaction);
+}
+.ls-instruction {
+  margin-top: var(--space-3);
+  color: var(--sunlight-soft);
+}
+.ls-info {
+  display: grid;
+  gap: var(--space-2);
+  padding-left: var(--space-4);
+  border-left: 1px solid color-mix(in oklab, var(--sunlight) 55%, transparent);
+  text-shadow: 0 1px 18px rgb(0 0 0 / 70%);
+}
+.ls-info[data-visible='false'] {
+  display: none;
+}
+.ls-info .body-copy {
+  color: var(--text-primary);
+}
+.ls-info-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-lead);
+  line-height: 1.2;
+}
+.ls-info-kicker {
+  color: var(--sunlight-soft);
+}
+.ls-info-stats {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+.ls-info .stat-value {
+  font-size: var(--fs-lead);
+}
+.ls-all {
+  justify-self: start;
+}
+
+.ls-frame[data-any='true'] ~ .ls-caption .ls-title .title {
+  opacity: 0.45;
+  font-size: var(--fs-lead);
+}
+
+/* — Equation — */
+.ls-equation {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: clamp(1.4rem, 5vh, 3.5rem);
+  z-index: var(--z-narration);
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: var(--fs-title);
+  font-weight: 340;
+  color: var(--text-primary);
+  text-shadow: 0 2px 24px rgb(0 0 0 / 80%);
+  pointer-events: none;
+  opacity: 0;
+}
+.ls-eq-left {
+  color: var(--text-muted);
+}
+.ls-eq-before {
+  --strike: 0;
+  position: relative;
+  display: inline-block;
+  color: var(--text-muted);
+}
+.ls-eq-before::after {
+  content: '';
+  position: absolute;
+  left: -0.1em;
+  right: -0.1em;
+  top: 55%;
+  height: 0.08em;
+  background: var(--ochre);
+  transform: scaleX(var(--strike));
+  transform-origin: left;
+}
+.ls-eq-after {
+  display: inline-block;
+  color: var(--sunlight-soft);
+  font-style: italic;
+}
+
+.ls-fog {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, #12241f 0%, #1d332c 55%, #24392f 100%);
+  pointer-events: none;
+  z-index: var(--z-scene-fx);
+}
+
+:root[data-motion='reduced'] .ls-flow,
+:root[data-motion='reduced'] .ls-thread,
+:root[data-motion='reduced'] .ls-rain,
+:root[data-motion='reduced'] .ls-hotspot-ring::after {
+  animation: none;
+}
+
+@media (max-aspect-ratio: 5/4) {
+  .ls-frame {
+    top: 8vh;
+    translate: -50% 0;
+  }
+  .ls-caption {
+    top: auto;
+    bottom: 4vh;
+    width: auto;
+    right: var(--gutter);
+  }
+  .ls-equation {
+    top: calc(8vh + 56.25vw + 1rem);
+    bottom: auto;
+    font-size: var(--fs-lead);
+  }
+  .ls-hotspot-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}

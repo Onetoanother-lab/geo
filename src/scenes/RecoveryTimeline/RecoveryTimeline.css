@@ -1,0 +1,155 @@
+.rc-stage {
+  background: #0d0f0d;
+}
+.rc-scene {
+  position: absolute;
+  inset: 0;
+}
+.rc-sky {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, color-mix(in oklab, #0d2321 var(--life-pct), #121411), color-mix(in oklab, #2c4a3e var(--life-pct), #2a2a26) 80%);
+}
+.rc-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.rc-far {
+  fill: color-mix(in oklab, #1d3a2f var(--life-pct), #2a2a26);
+  opacity: 0;
+}
+.rc-ground {
+  fill: color-mix(in oklab, #15241a var(--life-pct), #2b261f);
+}
+.rc-moss {
+  fill: #4f6d36;
+  opacity: 0;
+}
+.rc-shrubs {
+  fill: color-mix(in oklab, #19331f var(--life-pct), #2b2a24);
+  opacity: 0;
+}
+.rc-seg {
+  fill: none;
+  stroke: #2d2318;
+  stroke-linecap: round;
+}
+.rc-crown circle {
+  fill: color-mix(in oklab, #2f5a36 var(--life-pct), #3b3a31);
+  opacity: 0;
+}
+.rc-sprout {
+  fill: #7d9a4f;
+}
+.rc-bird {
+  fill: none;
+  stroke: #0a1712;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  opacity: 0;
+}
+
+.rc-timeline {
+  position: absolute;
+  top: 14vh;
+  bottom: 14vh;
+  right: calc(var(--gutter) + 2.5rem);
+  width: min(19rem, 28vw);
+  z-index: var(--z-narration);
+}
+.rc-rail {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgb(241 236 226 / 16%);
+}
+.rc-cursor {
+  position: absolute;
+  inset: 0;
+  background: var(--sunlight-soft);
+}
+.rc-markers {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  inset: 0;
+}
+.rc-marker {
+  position: absolute;
+  left: 0;
+  translate: 0 -50%;
+  display: grid;
+  gap: 0.15rem;
+  padding-left: var(--space-4);
+  opacity: 0.25;
+}
+.rc-marker::before {
+  content: '';
+  position: absolute;
+  left: -3px;
+  top: 0.55em;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--sunlight-soft);
+}
+.rc-marker-age {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  color: var(--text-primary);
+}
+.rc-marker-fact {
+  font-size: var(--fs-micro);
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+.rc-study {
+  position: absolute;
+  right: calc(var(--gutter) + 2.5rem);
+  bottom: 5vh;
+  max-width: 24rem;
+  z-index: var(--z-narration);
+}
+.rc-lines {
+  position: absolute;
+  top: clamp(5rem, 15vh, 9rem);
+  left: var(--gutter);
+  width: min(38rem, 50vw);
+  z-index: var(--z-narration);
+}
+.rc-lines p {
+  position: absolute;
+  inset: 0 auto auto 0;
+  opacity: 0;
+  text-shadow: 0 2px 28px rgb(0 0 0 / 70%);
+}
+.rc-lines .display {
+  font-size: var(--fs-title);
+}
+.rc-notequal {
+  color: var(--sunlight-soft);
+}
+.rc-veil {
+  position: absolute;
+  inset: 0;
+  background: var(--forest-black);
+  pointer-events: none;
+}
+
+@media (max-width: 760px) {
+  .rc-timeline {
+    top: auto;
+    bottom: 10vh;
+    height: 30vh;
+    width: 70vw;
+  }
+  .rc-lines {
+    width: auto;
+    right: var(--gutter);
+  }
+}

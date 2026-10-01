@@ -1,0 +1,122 @@
+.entry-gate {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-gate);
+  display: grid;
+  place-items: center;
+  background: radial-gradient(ellipse at 50% 70%, #0b1714 0%, var(--forest-black) 65%);
+  text-align: center;
+  padding: var(--gutter);
+}
+.entry-gate[data-entered='true'] {
+  pointer-events: none;
+}
+
+.gate-fog {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 18% at 30% 78%, rgb(159 184 173 / 9%), transparent 70%),
+    radial-gradient(ellipse 50% 14% at 72% 70%, rgb(159 184 173 / 7%), transparent 70%);
+  animation: gate-fog 26s var(--ease-in-out) infinite alternate;
+}
+@keyframes gate-fog {
+  to {
+    translate: 3% -1%;
+    scale: 1.06;
+  }
+}
+
+.gate-content {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--space-5);
+  max-width: 52rem;
+}
+
+.gate-title {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: center;
+}
+.gate-word {
+  font-family: var(--font-display);
+  font-variation-settings: 'opsz' 144;
+  font-weight: 280;
+  font-size: var(--fs-colossal);
+  line-height: 0.92;
+  letter-spacing: 0.02em;
+  color: var(--text-primary);
+}
+.gate-sub {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 320;
+  font-size: var(--fs-title);
+  color: var(--sunlight-soft);
+  letter-spacing: 0.01em;
+}
+.gate-question {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.gate-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-4) var(--space-6);
+  margin-top: var(--space-5);
+}
+
+.gate-enter {
+  display: grid;
+  gap: 0.15em;
+  padding: 1.05em 2.2em;
+  border: 1px solid color-mix(in oklab, var(--sunlight) 55%, transparent);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--sunlight) 9%, transparent);
+  transition:
+    background var(--dur-medium) var(--ease-out),
+    border-color var(--dur-medium) var(--ease-out);
+}
+.gate-enter:hover,
+.gate-enter:focus-visible {
+  background: color-mix(in oklab, var(--sunlight) 20%, transparent);
+  border-color: var(--sunlight);
+}
+.gate-enter-main {
+  font-family: var(--font-display);
+  font-size: var(--fs-lead);
+  font-weight: 400;
+}
+.gate-enter-sub {
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.gate-quiet {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 0.35em;
+  text-decoration-color: color-mix(in oklab, var(--text-muted) 50%, transparent);
+  padding: 0.5em;
+}
+.gate-quiet:hover {
+  color: var(--text-primary);
+}
+.gate-hint {
+  max-width: 34rem;
+  font-size: var(--fs-small);
+  color: var(--text-faint);
+}

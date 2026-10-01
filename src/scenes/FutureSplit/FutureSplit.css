@@ -1,0 +1,189 @@
+.fu-stage {
+  background: var(--forest-dark);
+}
+.fu-a,
+.fu-b {
+  position: absolute;
+  inset: 0;
+}
+.fu-a {
+  z-index: 1;
+}
+.fu-extra {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+.fu-bare {
+  opacity: 0;
+}
+.fu-snags {
+  opacity: 0;
+}
+.fu-snags path {
+  fill: none;
+  stroke: #3b2f25;
+  stroke-linecap: round;
+}
+.fu-stumps {
+  fill: #4b3a2a;
+  opacity: 0;
+}
+.fu-saplings {
+  fill: var(--tree-near);
+  opacity: 0;
+}
+
+.fu-seam {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: var(--z-interaction);
+  width: 56px;
+  translate: -28px 0;
+  cursor: ew-resize;
+  touch-action: none;
+}
+.fu-seam-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: rgb(241 236 226 / 75%);
+  box-shadow: 0 0 18px rgb(241 236 226 / 40%);
+}
+.fu-seam-handle {
+  position: absolute;
+  top: 74%;
+  left: 5px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1.5px solid var(--text-primary);
+  background: rgb(4 8 7 / 55%);
+  display: grid;
+  place-items: center;
+}
+.fu-seam-handle svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: var(--text-primary);
+  stroke-width: 1.6;
+}
+
+.fu-labels {
+  position: absolute;
+  inset: clamp(4.5rem, 10vh, 7rem) calc(var(--gutter) + 1.5rem) auto var(--gutter);
+  z-index: var(--z-narration);
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+  opacity: 0;
+}
+.fu-label {
+  display: grid;
+  gap: var(--space-1);
+  max-width: 18rem;
+  text-shadow: 0 2px 22px rgb(0 0 0 / 70%);
+  transition: opacity var(--dur-medium) var(--ease-out);
+}
+.fu-label--b {
+  text-align: right;
+}
+.fu-label-text {
+  font-family: var(--font-display);
+  font-size: var(--fs-lead);
+}
+.fu-label--a .label {
+  color: var(--ochre);
+}
+.fu-label--b .label {
+  color: var(--leaf-bright);
+}
+
+.fu-time {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(1.2rem, 4vh, 2.5rem);
+  translate: -50% 0;
+  z-index: var(--z-narration);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: min(28rem, 70vw);
+}
+.fu-time-track {
+  position: relative;
+  flex: 1;
+  height: 1px;
+  background: rgb(241 236 226 / 25%);
+}
+.fu-time-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--text-primary);
+  transform-origin: left;
+}
+.fu-control {
+  position: absolute;
+  left: 50%;
+  bottom: calc(clamp(1.2rem, 4vh, 2.5rem) + 1.6rem);
+  translate: -50% 0;
+  z-index: var(--z-interaction);
+  width: 10rem;
+}
+.fu-range {
+  width: 100%;
+  opacity: 0.001;
+  height: 24px;
+}
+.fu-range:focus-visible {
+  opacity: 1;
+}
+.fu-disclaimer {
+  position: absolute;
+  left: var(--gutter);
+  bottom: clamp(1.2rem, 4vh, 2.5rem);
+  z-index: var(--z-narration);
+  max-width: 22rem;
+  font-size: var(--fs-micro);
+  color: var(--text-muted);
+  text-shadow: 0 1px 12px rgb(0 0 0 / 80%);
+}
+.fu-ends {
+  position: absolute;
+  inset: 0 var(--gutter);
+  z-index: var(--z-narration);
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--space-5);
+  text-align: center;
+  pointer-events: none;
+  text-shadow: 0 2px 34px rgb(0 0 0 / 75%);
+}
+.fu-end1,
+.fu-end2 {
+  opacity: 0;
+  max-width: 54rem;
+}
+.fu-end2 {
+  color: var(--sunlight-soft);
+}
+.fu-veil {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-controls);
+  background: var(--forest-black);
+  pointer-events: none;
+}
+
+@media (max-width: 760px) {
+  .fu-disclaimer {
+    bottom: 5.5rem;
+  }
+}

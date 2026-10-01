@@ -1,0 +1,243 @@
+.sim-stage {
+  background:
+    radial-gradient(ellipse at 30% 40%, #13231d 0%, transparent 60%),
+    var(--forest-dark);
+  display: grid;
+  align-items: center;
+  padding: clamp(4.5rem, 9vh, 7rem) var(--gutter) clamp(2rem, 5vh, 4rem);
+}
+.sim-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(19rem, 1fr);
+  gap: clamp(1.5rem, 3vw, 4rem);
+  align-items: start;
+  max-width: var(--section-max);
+  margin-inline: auto;
+  width: 100%;
+}
+.sim-map {
+  display: grid;
+  gap: var(--space-4);
+}
+.sim-grid {
+  display: grid;
+  gap: 3px;
+  padding: 3px;
+  background: #0a1411;
+  border: var(--rule);
+  width: min(100%, calc((100vh - 13rem) * 10 / 7));
+}
+.sim-row {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), 1fr);
+  gap: 3px;
+}
+.sim-cell-wrap {
+  aspect-ratio: 1;
+}
+.sim-cell {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 1px;
+}
+.sim-cell:hover {
+  filter: brightness(1.18);
+}
+.sim-cell:focus-visible {
+  outline-offset: -2px;
+  z-index: 1;
+}
+.sim-tile {
+  position: absolute;
+  inset: 0;
+  animation: sim-in var(--dur-medium) var(--ease-out);
+}
+.sim-tile svg {
+  width: 100%;
+  height: 100%;
+}
+@keyframes sim-in {
+  from {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+}
+.sim-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  color: var(--text-muted);
+}
+.sim-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+}
+.sim-legend-swatch {
+  width: 0.8em;
+  height: 0.8em;
+  border-radius: 1px;
+}
+.sim-legend-swatch[data-type='forest'] { background: #24452f; }
+.sim-legend-swatch[data-type='protected'] { background: #24452f; outline: 2px dashed #e9c77b; outline-offset: -2px; }
+.sim-legend-swatch[data-type='young'] { background: #4f7a3f; }
+.sim-legend-swatch[data-type='farm'] { background: #a58a4f; }
+.sim-legend-swatch[data-type='agroforest'] { background: #8d8a4c; }
+.sim-legend-swatch[data-type='pasture'] { background: #8f9363; }
+.sim-legend-swatch[data-type='bare'] { background: #7a5a3a; }
+.sim-legend-swatch[data-type='water'] { background: #2f6670; }
+.sim-legend-swatch[data-type='village'] { background: #e6d6b8; }
+
+.sim-panel {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+}
+.sim-title {
+  font-size: var(--fs-title);
+}
+.sim-intro {
+  font-size: var(--fs-small);
+  color: var(--text-muted);
+  max-width: 34rem;
+}
+.sim-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.sim-tool {
+  font-size: var(--fs-micro);
+}
+.sim-hint {
+  font-size: var(--fs-small);
+  color: var(--sunlight-soft);
+  min-height: 1.6em;
+}
+.sim-indicators {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: var(--space-3) 0;
+  border-top: var(--rule);
+  border-bottom: var(--rule);
+}
+.sim-indicator {
+  display: grid;
+  grid-template-columns: 12.5rem 1fr;
+  align-items: center;
+  gap: var(--space-3);
+}
+.sim-indicator dt {
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+}
+.sim-indicator dd {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 6.5rem;
+  align-items: center;
+  gap: var(--space-3);
+}
+.sim-bar {
+  position: relative;
+  height: 4px;
+  background: rgb(241 236 226 / 12%);
+}
+.sim-bar span {
+  position: absolute;
+  inset: 0;
+  transform-origin: left;
+  transform: scaleX(var(--level));
+  background: color-mix(in oklab, var(--leaf-bright) calc(var(--level) * 100%), var(--ochre));
+  transition:
+    transform var(--dur-slow) var(--ease-settle),
+    background var(--dur-slow) var(--ease-out);
+}
+.sim-level {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  font-size: var(--fs-micro);
+  color: var(--text-muted);
+}
+.sim-delta {
+  width: 0.75em;
+  height: 0.75em;
+}
+.sim-delta[data-dir='up'] path {
+  fill: var(--leaf-bright);
+}
+.sim-delta[data-dir='down'] path {
+  fill: var(--ember);
+}
+.sim-time {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+.sim-year-value {
+  font-family: var(--font-display);
+  font-size: var(--fs-lead);
+  color: var(--sunlight-soft);
+}
+.sim-log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.3rem;
+  font-size: var(--fs-small);
+  color: var(--text-faint);
+  min-height: 4.8em;
+}
+.sim-log li[data-latest='true'] {
+  color: var(--text-primary);
+}
+.sim-rules {
+  font-size: var(--fs-small);
+  color: var(--text-muted);
+}
+.sim-rules summary {
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+.sim-rules ul {
+  margin: var(--space-2) 0 0;
+  padding-left: 1.1em;
+  display: grid;
+  gap: 0.3rem;
+}
+.sim-disclaimer {
+  font-size: var(--fs-micro);
+  color: var(--text-faint);
+  padding-left: var(--space-3);
+  border-left: 1px solid var(--ochre);
+}
+
+@media (max-width: 900px) {
+  .sim-layout {
+    grid-template-columns: 1fr;
+  }
+  .sim-grid {
+    width: 100%;
+  }
+  .sim-indicator {
+    grid-template-columns: 9rem 1fr;
+  }
+}

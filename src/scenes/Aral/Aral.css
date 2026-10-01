@@ -1,0 +1,276 @@
+.ar-stage {
+  background: #0b0a08;
+}
+
+/* — Map phase — */
+.ar-map-wrap {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, #2c2418 0%, #15120d 70%);
+  opacity: 0;
+}
+.ar-map {
+  position: absolute;
+  inset: 6vh 0;
+  width: 100%;
+  height: 88vh;
+}
+.ar-land {
+  fill: #2e2619;
+}
+.ar-water {
+  fill: #3f7f86;
+}
+.ar-seabed {
+  opacity: 0;
+}
+.ar-ghost {
+  fill: none;
+  stroke: #9fb8ad;
+  stroke-width: 1.2;
+  stroke-dasharray: 4 5;
+  opacity: 0.55;
+}
+.ar-river {
+  fill: none;
+  stroke: #5f9ea4;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.ar-map-label {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  fill: #c9b08a;
+}
+.ar-map-label--country {
+  fill: #8a877e;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.ar-map-label--town {
+  fill: #e6d6b8;
+}
+.ar-town {
+  fill: #e6d6b8;
+}
+.ar-year {
+  position: absolute;
+  left: 50%;
+  top: 7vh;
+  translate: -50% 0;
+  font-size: var(--fs-small);
+  color: var(--dust-pale);
+}
+.ar-year--now {
+  opacity: 0;
+}
+.ar-mapnote {
+  position: absolute;
+  left: var(--gutter);
+  bottom: 4vh;
+}
+.ar-map-stats {
+  position: absolute;
+  right: calc(var(--gutter) + 2rem);
+  top: 50%;
+  translate: 0 -50%;
+  display: grid;
+  gap: var(--space-6);
+  max-width: 20rem;
+  opacity: 0;
+}
+
+/* — Ground phase — */
+.ar-ground {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+.ar-sky {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, #a89d88 0%, #d8c9a8 45%, #e6d9bb 52%);
+}
+.ar-ground-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.ar-horizon {
+  stroke: #efe5cf;
+  stroke-width: 2;
+  opacity: 0.7;
+}
+.ar-cracks {
+  fill: none;
+  stroke: #8f7a5b;
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+  opacity: 0.55;
+}
+.ar-patch {
+  fill: #8d9273;
+  opacity: 0;
+}
+.ar-ship path {
+  fill: #5a3d2a;
+}
+.ar-ship .ar-ship-rust {
+  fill: none;
+  stroke: #8a4b2a;
+  stroke-width: 3;
+  opacity: 0.7;
+}
+.ar-sand-mound {
+  fill: #cdb994;
+}
+.ar-ship .ar-ship-mast {
+  fill: none;
+  stroke: #5a3d2a;
+  stroke-width: 3;
+}
+.ar-stems {
+  fill: #5c5040;
+}
+.ar-tufts {
+  fill: #7d8a63;
+}
+.ar-haze {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgb(230 214 184 / 0%) 20%, rgb(230 214 184 / 75%) 55%, rgb(201 176 138 / 30%) 100%);
+  pointer-events: none;
+}
+.ar-saxaul-label {
+  position: absolute;
+  left: calc(260 / 1600 * 100%);
+  bottom: 30vh;
+  display: grid;
+  gap: 0.15rem;
+  padding-left: var(--space-3);
+  border-left: 1px solid var(--soil);
+  color: var(--text-ink);
+  opacity: 0;
+}
+.ar-saxaul-name {
+  font-family: var(--font-display);
+  font-size: var(--fs-lead);
+}
+.ar-saxaul-label em {
+  font-family: var(--font-display);
+  font-size: var(--fs-small);
+}
+.ar-saxaul-label .source-ref,
+.ar-saxaul-label .source-ref button {
+  color: #5b3f2a;
+}
+.ar-planted-stat {
+  position: absolute;
+  right: calc(var(--gutter) + 2rem);
+  top: clamp(5rem, 14vh, 9rem);
+  display: grid;
+  gap: var(--space-2);
+  max-width: 22rem;
+  opacity: 0;
+}
+.ar-planted-stat .label {
+  color: var(--soil);
+}
+.ar-ground .stat-value,
+.ar-limits .stat-value {
+  color: var(--soil-dark);
+}
+.ar-ground .stat-unit,
+.ar-ground .stat-label,
+.ar-limits .stat-unit,
+.ar-limits .stat-label {
+  color: var(--text-ink);
+}
+.ar-ground .stat-meta,
+.ar-ground .stat-source,
+.ar-limits .stat-meta,
+.ar-limits .stat-source {
+  color: #5b4a36;
+}
+
+.ar-black {
+  position: absolute;
+  inset: 0;
+  background: #0b0a08;
+  pointer-events: none;
+}
+
+/* — Lines — */
+.ar-line {
+  position: absolute;
+  inset: 0 var(--gutter);
+  margin: 0;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  z-index: var(--z-narration);
+  opacity: 0;
+  pointer-events: none;
+}
+.ar-place {
+  color: var(--dust);
+  font-size: var(--fs-small);
+}
+.ar-once,
+.ar-cause {
+  text-shadow: 0 2px 30px rgb(0 0 0 / 70%);
+}
+.ar-line--low {
+  place-items: end center;
+  padding-bottom: 9vh;
+}
+
+.ar-left,
+.ar-wind,
+.ar-planting,
+.ar-roots,
+.ar-notsea,
+.ar-partial {
+  color: var(--text-ink);
+  text-shadow: 0 1px 24px rgb(240 230 210 / 70%);
+}
+.ar-line--top {
+  place-items: start center;
+  padding-top: clamp(5rem, 16vh, 10rem);
+}
+.ar-line--mid {
+  place-items: start center;
+  padding-top: calc(clamp(5rem, 16vh, 10rem) + 7rem);
+}
+.ar-line--topleft {
+  place-items: start start;
+  text-align: left;
+  padding-top: clamp(5rem, 14vh, 9rem);
+}
+.ar-line--topleft > * {
+  max-width: 30rem;
+}
+
+.ar-limits {
+  position: absolute;
+  left: 50%;
+  top: calc(clamp(5rem, 16vh, 10rem) + 13rem);
+  translate: -50% 0;
+  width: min(40rem, 86vw);
+  display: grid;
+  gap: var(--space-3);
+  justify-items: center;
+  text-align: center;
+  z-index: var(--z-narration);
+  opacity: 0;
+}
+.ar-limits .body-copy {
+  color: var(--text-ink);
+  max-width: none;
+}
+.ar-limits .stat-line {
+  justify-items: center;
+}

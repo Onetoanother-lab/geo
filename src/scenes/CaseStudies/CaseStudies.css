@@ -1,0 +1,263 @@
+.cs-stage {
+  background: #070c0b;
+}
+.cs-case {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: minmax(18rem, 1fr) minmax(0, 1.2fr);
+  gap: clamp(1.5rem, 4vw, 5rem);
+  align-items: center;
+  padding: clamp(5rem, 10vh, 7rem) var(--gutter) clamp(2rem, 5vh, 4rem);
+  max-width: var(--section-max);
+  margin-inline: auto;
+}
+.cs-text {
+  display: grid;
+  gap: var(--space-4);
+  align-content: center;
+}
+.cs-kicker {
+  color: var(--sunlight-soft);
+}
+.cs-visual {
+  position: relative;
+  display: grid;
+  gap: var(--space-4);
+  justify-items: center;
+  align-content: center;
+  min-height: 0;
+}
+.cs-placeholder {
+  width: 100%;
+  aspect-ratio: 1;
+}
+.country-dots {
+  width: 100%;
+  max-height: 64vh;
+}
+.cd-outline {
+  fill: none;
+  stroke: rgb(241 236 226 / 16%);
+  stroke-width: 1;
+}
+.cd-dot {
+  fill: rgb(241 236 226 / 12%);
+  transition: fill 600ms var(--ease-out);
+}
+.cd-dot[data-forest='true'] {
+  fill: var(--leaf-bright);
+}
+.cd-dot[data-sub='true'] {
+  fill: #6fb3b0;
+}
+
+/* — UK — */
+.cs-case--uk {
+  background: radial-gradient(ellipse at 70% 50%, #0f1c18 0%, transparent 60%);
+}
+.cs-big {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+}
+.cs-big-value {
+  font-family: var(--font-display);
+  font-variation-settings: 'opsz' 144;
+  font-size: var(--fs-colossal);
+  line-height: 0.9;
+  color: var(--leaf-bright);
+}
+.cs-big-year {
+  font-family: var(--font-mono);
+  font-size: var(--fs-lead);
+  color: var(--text-muted);
+}
+.cs-sub {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  color: var(--text-muted);
+}
+.cs-scrub {
+  display: grid;
+  gap: var(--space-2);
+}
+.cs-scrub input {
+  width: 100%;
+  accent-color: var(--leaf-bright);
+  height: 32px;
+}
+.cs-nuance {
+  font-size: var(--fs-small);
+}
+.cs-facts {
+  display: grid;
+  gap: var(--space-4);
+}
+.cs-facts .stat-value {
+  font-size: var(--fs-lead);
+}
+.cs-dots--uk {
+  max-height: 52vh;
+}
+.cs-chart {
+  width: min(100%, 32rem);
+}
+.cs-chart-area {
+  fill: color-mix(in oklab, var(--leaf) 30%, transparent);
+}
+.cs-chart-line {
+  fill: none;
+  stroke: var(--leaf-bright);
+  stroke-width: 1.6;
+}
+.cs-chart-dot {
+  fill: var(--forest-dark);
+  stroke: var(--leaf-bright);
+  stroke-width: 1.5;
+  transition: r var(--dur-quick) var(--ease-out);
+}
+.cs-chart-dot[data-on='true'] {
+  fill: var(--leaf-bright);
+}
+.cs-chart-milestone {
+  stroke: var(--sunlight);
+  stroke-dasharray: 2 3;
+}
+.cs-chart-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  fill: var(--text-muted);
+}
+.cs-source {
+  justify-self: end;
+}
+
+/* — Japan — */
+.cs-case--jp {
+  grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 1fr);
+  background: radial-gradient(ellipse at 30% 50%, #0d1a19 0%, transparent 60%);
+}
+.cs-toggle {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+.cs-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: var(--space-5);
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  color: var(--text-muted);
+}
+.cs-legend li::before {
+  content: '';
+  display: inline-block;
+  width: 0.7em;
+  height: 0.7em;
+  border-radius: 50%;
+  margin-right: 0.4em;
+  background: var(--leaf-bright);
+}
+.cs-legend li[data-k='planted']::before {
+  background: #6fb3b0;
+}
+.cs-legend[data-type-view='false'] li[data-k='planted'] {
+  opacity: 0.25;
+}
+.cs-compare {
+  width: min(100%, 26rem);
+  display: grid;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  color: var(--text-muted);
+}
+.cs-compare-row {
+  display: grid;
+  grid-template-columns: 9rem 1fr;
+  align-items: center;
+  gap: var(--space-3);
+}
+.cs-compare-bar {
+  height: 5px;
+  background: linear-gradient(to right, var(--leaf-bright) calc(var(--v) * 100%), rgb(241 236 226 / 10%) 0);
+}
+.cs-compare-bar--world {
+  background: linear-gradient(to right, var(--text-muted) calc(var(--v) * 100%), rgb(241 236 226 / 10%) 0);
+}
+
+/* — Uzbekistan — */
+.cs-case--uz {
+  background:
+    radial-gradient(ellipse at 70% 55%, rgb(185 138 75 / 16%) 0%, transparent 60%),
+    linear-gradient(to bottom, #070c0b, #14100b);
+}
+.cs-case--uz .cs-kicker {
+  color: var(--ochre);
+}
+.cs-case--uz .stat-value {
+  color: var(--dust-pale);
+}
+.cs-uz {
+  width: 100%;
+  max-height: 58vh;
+  overflow: visible;
+}
+.cs-uz-outline {
+  fill: color-mix(in oklab, var(--ochre) 18%, #14100b);
+  stroke: var(--dust);
+  stroke-width: 1.2;
+}
+.cs-uz-route {
+  fill: none;
+  stroke: var(--sunlight);
+  stroke-width: 2;
+  stroke-dasharray: 6 8;
+  animation: cs-route 1.6s linear infinite;
+}
+@keyframes cs-route {
+  to {
+    stroke-dashoffset: -28;
+  }
+}
+.cs-uz-zone text {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  fill: var(--dust-pale);
+}
+.cs-uz-zone circle,
+.cs-uz-zone path {
+  fill: none;
+  stroke-width: 1.5;
+}
+.cs-uz-zone--aral circle {
+  stroke: var(--sunlight);
+  fill: color-mix(in oklab, var(--sunlight) 20%, transparent);
+}
+.cs-uz-zone--desert circle {
+  stroke: var(--ochre);
+}
+.cs-uz-zone--mountains path {
+  stroke: var(--leaf-bright);
+}
+.cs-bridge {
+  font-size: var(--fs-lead);
+  color: var(--sunlight-soft);
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .cs-case,
+  .cs-case--jp {
+    grid-template-columns: 1fr;
+  }
+  .cs-case--jp .cs-visual {
+    order: 2;
+  }
+}

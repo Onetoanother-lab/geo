@@ -1,0 +1,146 @@
+.cq-stage {
+  background:
+    radial-gradient(ellipse at 50% 55%, #141a14 0%, #0a0c0a 70%),
+    #0a0c0a;
+}
+.cq-title {
+  position: absolute;
+  inset: 0 var(--gutter);
+  display: grid;
+  place-items: center;
+  text-align: center;
+  z-index: var(--z-narration);
+  opacity: 0;
+  pointer-events: none;
+}
+.cq-tabs {
+  position: absolute;
+  top: clamp(4.5rem, 10vh, 7rem);
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+  z-index: var(--z-interaction);
+  opacity: 0;
+}
+.cq-tab {
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  padding: 0.7em 1em;
+  border-bottom: 1px solid transparent;
+  transition:
+    color var(--dur-quick) var(--ease-out),
+    border-color var(--dur-quick) var(--ease-out);
+}
+.cq-tab:hover {
+  color: var(--text-primary);
+}
+.cq-stage[data-active='biodiversity'] .cq-tab[data-chain='biodiversity'],
+.cq-stage[data-active='soilWater'] .cq-tab[data-chain='soilWater'],
+.cq-stage[data-active='climate'] .cq-tab[data-chain='climate'] {
+  color: var(--sunlight-soft);
+  border-color: var(--ochre);
+}
+.cq-chain {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+.cq-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.cq-line-ghost {
+  fill: none;
+  stroke: rgb(241 236 226 / 7%);
+  stroke-width: 2;
+}
+.cq-line {
+  fill: none;
+  stroke: var(--ochre);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+.cq-node-ring {
+  fill: #0d100d;
+  stroke: color-mix(in oklab, var(--ochre) 70%, transparent);
+  stroke-width: 1.5;
+}
+.cq-icon {
+  fill: none;
+  stroke: var(--dust-pale);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.cq-chain[data-chain='biodiversity'] .cq-line {
+  stroke: #9bb562;
+}
+.cq-chain[data-chain='soilWater'] .cq-line {
+  stroke: #b98a4b;
+}
+.cq-chain[data-chain='climate'] .cq-line {
+  stroke: #c4622d;
+}
+.cq-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  left: 50%;
+  top: calc(50% + clamp(3.6rem, 9vh, 5.6rem));
+  width: min(100vw, 177.78vh);
+  translate: -50% 0;
+}
+.cq-steps li {
+  position: absolute;
+  translate: -50% 0;
+  width: min(16rem, 22vw);
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: var(--fs-lead);
+  line-height: 1.25;
+  color: var(--text-primary);
+}
+.cq-chain-label {
+  position: absolute;
+  left: var(--gutter);
+  top: 28vh;
+  color: var(--sunlight-soft);
+}
+.cq-chain-stat {
+  position: absolute;
+  right: calc(var(--gutter) + 2rem);
+  bottom: clamp(2rem, 7vh, 4rem);
+  display: grid;
+  gap: var(--space-4);
+  max-width: 24rem;
+  opacity: 0;
+}
+.cq-chain-stat .stat-value {
+  font-size: var(--fs-lead);
+}
+.cq-closing {
+  position: absolute;
+  inset: auto var(--gutter) clamp(3rem, 12vh, 7rem);
+  text-align: center;
+  z-index: var(--z-narration);
+  opacity: 0;
+  text-wrap: balance;
+}
+
+@media (max-width: 760px) {
+  .cq-steps li {
+    font-size: var(--fs-small);
+  }
+  .cq-chain-stat {
+    left: var(--gutter);
+    right: var(--gutter);
+  }
+}

@@ -1,0 +1,96 @@
+.intro-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  overflow: visible;
+}
+
+.intro-gap {
+  position: absolute;
+  top: -10%;
+  left: 55%;
+  width: 18vw;
+  height: 110%;
+  translate: -50% 0;
+  rotate: 8deg;
+  background: linear-gradient(to bottom, rgb(250 246 236 / 55%), rgb(250 246 236 / 8%) 70%, transparent);
+  filter: blur(22px);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.intro-dawn {
+  position: absolute;
+  inset: 0;
+  background: var(--forest-black);
+  z-index: calc(var(--z-narration) - 2);
+  pointer-events: none;
+}
+
+.intro-fogout {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, #12241f 0%, #1d332c 55%, #24392f 100%);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.intro-once-wrap {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: var(--z-narration);
+  opacity: 0;
+}
+
+.intro-alive {
+  text-align: center;
+}
+.intro-alive-text {
+  margin-inline: auto;
+  color: var(--text-primary);
+  opacity: 0.9;
+}
+
+.intro-notonly,
+.intro-notjust,
+.intro-systemline,
+.intro-alive {
+  opacity: 0;
+}
+
+.intro-hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 5vh;
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  z-index: var(--z-narration);
+  opacity: 0;
+}
+.intro-hint-line {
+  width: 1px;
+  height: 46px;
+  background: linear-gradient(to bottom, var(--text-muted), transparent);
+  animation: intro-hint 2.6s var(--ease-in-out) infinite;
+  transform-origin: top;
+}
+@keyframes intro-hint {
+  0% {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(1);
+    opacity: 0;
+  }
+}

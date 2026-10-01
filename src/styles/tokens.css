@@ -1,0 +1,129 @@
+/* Design tokens — the only place raw colours, durations and z-layers are defined. */
+
+@property --life {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --haze {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+:root {
+  /* — Living forest — */
+  --forest-black: #040807;
+  --forest-dark: #07110e;
+  --forest-deep: #0c1f1a;
+  --forest-teal: #123a35;
+  --moss: #3e5a2b;
+  --moss-soft: #56713a;
+  --leaf: #6f8f45;
+  --leaf-bright: #9bb562;
+  --sunlight: #e9c77b;
+  --sunlight-soft: #f3dfae;
+  --fog: #9fb8ad;
+  --water: #4f8a8b;
+  --water-deep: #1f4d55;
+
+  /* — Loss — */
+  --soil: #5b3f2a;
+  --soil-dark: #3a2819;
+  --ochre: #b98a4b;
+  --dust: #c9b08a;
+  --dust-pale: #e6d6b8;
+  --ash: #6e6a64;
+  --ash-dark: #3b3936;
+  --ember: #c4622d;
+  --salt: #e8e2d4;
+
+  /* — Text — */
+  --text-primary: #f1ece2;
+  --text-muted: #b5b0a3;
+  --text-faint: #8a877e;
+  --text-ink: #1b1a17;
+  --focus: #f3dfae;
+
+  /* — Life-driven palette (the forest renderer reads these) —
+     --life: 1 → living forest, 0 → degraded landscape. */
+  --life-pct: calc(var(--life) * 100%);
+  --sky-top: color-mix(in oklab, #0b2a2b var(--life-pct), #8d8676);
+  --sky-bottom: color-mix(in oklab, #3e6a5c var(--life-pct), #d9c7a2);
+  --tree-far: color-mix(in oklab, #2c4d43 var(--life-pct), #8f8678);
+  --tree-mid: color-mix(in oklab, #1d3a2f var(--life-pct), #6d6457);
+  --tree-near: color-mix(in oklab, #10261e var(--life-pct), #4b4339);
+  --tree-front: color-mix(in oklab, #07130f var(--life-pct), #2c2620);
+  --canopy-light: color-mix(in oklab, #5f7f3b var(--life-pct), #9d8c6c);
+  --ground: color-mix(in oklab, #1b2a1a var(--life-pct), #8a6c4a);
+  --ground-far: color-mix(in oklab, #2a3d2a var(--life-pct), #a88d68);
+  --river: color-mix(in oklab, #3f7f86 var(--life-pct), #8b6a45);
+  --mist-opacity: calc(0.15 + var(--life) * 0.55);
+  --light-warmth: color-mix(in oklab, #f0cf86 var(--life-pct), #f4f1ea);
+
+  /* — Type — */
+  --font-display: 'Fraunces Variable', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-text: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+
+  --fs-micro: clamp(0.72rem, 0.68rem + 0.15vw, 0.82rem);
+  --fs-small: clamp(0.85rem, 0.8rem + 0.2vw, 0.98rem);
+  --fs-body: clamp(1.02rem, 0.92rem + 0.42vw, 1.3rem);
+  --fs-lead: clamp(1.25rem, 1.05rem + 0.8vw, 1.8rem);
+  --fs-title: clamp(1.9rem, 1.3rem + 2.4vw, 3.6rem);
+  --fs-display: clamp(2.4rem, 1.4rem + 4.2vw, 6.2rem);
+  --fs-colossal: clamp(3.4rem, 1.6rem + 8vw, 11rem);
+
+  --lh-tight: 1.04;
+  --lh-display: 1.1;
+  --lh-body: 1.55;
+  --tracking-label: 0.14em;
+
+  /* — Space — */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+  --space-9: 7rem;
+  --gutter: clamp(1rem, 0.5rem + 3vw, 4.5rem);
+  --measure: 34rem;
+  --section-max: 92rem;
+
+  /* — Layers — */
+  --z-scene: 0;
+  --z-scene-fx: 5;
+  --z-narration: 10;
+  --z-interaction: 20;
+  --z-controls: 60;
+  --z-rail: 55;
+  --z-overlay: 80;
+  --z-dialog: 90;
+  --z-gate: 100;
+
+  /* — Motion — */
+  --dur-instant: 120ms;
+  --dur-quick: 240ms;
+  --dur-medium: 520ms;
+  --dur-slow: 1100ms;
+  --dur-cinematic: 2200ms;
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-settle: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-dread: cubic-bezier(0.55, 0.06, 0.68, 0.19);
+
+  /* — Edges — */
+  --radius-hair: 2px;
+  --radius-soft: 6px;
+  --rule: 1px solid color-mix(in oklab, var(--text-primary) 22%, transparent);
+}
+
+:root[data-motion='reduced'] {
+  --dur-quick: 1ms;
+  --dur-medium: 200ms;
+  --dur-slow: 260ms;
+  --dur-cinematic: 300ms;
+}
