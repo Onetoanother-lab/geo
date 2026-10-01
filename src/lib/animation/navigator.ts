@@ -17,7 +17,8 @@ function maxScroll(): number {
 export function scrollToY(y: number, opts: { duration?: number } = {}): void {
   const top = Math.min(Math.max(0, y), maxScroll());
   activeTween?.kill();
-  if (isReducedMotion(getState())) {
+  // Hidden/background pages get no rAF (e.g. when driven from the presenter window): jump instantly.
+  if (isReducedMotion(getState()) || document.hidden) {
     targetY = null;
     window.scrollTo({ top, behavior: 'auto' });
     return;
@@ -26,7 +27,7 @@ export function scrollToY(y: number, opts: { duration?: number } = {}): void {
   const duration = opts.duration ?? Math.min(2.4, 0.9 + distance * 0.35);
   targetY = top;
   activeTween = gsap.to(window, {
-    scrollTo: { y: top, autoKill: true },
+    scrollTo: { y: top, autoKill: false },
     duration,
     ease: 'power2.inOut',
     onComplete: () => {
