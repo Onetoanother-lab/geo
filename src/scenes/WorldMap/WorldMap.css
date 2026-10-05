@@ -1,9 +1,141 @@
 .wm-stage {
-  background: radial-gradient(ellipse at 55% 55%, #0d1a17 0%, #060a09 70%);
+  background: #030807;
 }
+
+/* The ground the camera is over: leaf shadow first, then the open dark of the sea. */
+.wm-backdrop {
+  --wm-dark: 0;
+  --wm-ocean: 0;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 50% 48%,
+    color-mix(in oklab, #0f2d30 calc(var(--wm-ocean) * 100%), color-mix(in oklab, #08160f calc(var(--wm-dark) * 100%), #0d2314)) 0%,
+    #030807 88%
+  );
+}
+
+.wm-map {
+  position: absolute;
+  inset: 0;
+}
+.wm-map svg {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* — The world — */
+.wm-world { opacity: 0; }
+.wm-ocean { fill: url(#wm-ocean-g); }
+.wm-tropics path {
+  fill: none;
+  stroke: #f0cf86;
+  stroke-width: 0.7px;
+  stroke-dasharray: 1 7;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-out);
+}
+.wm-tropics[data-on='true'] path { opacity: 0.55; }
+/* Land is one lit shape with a faint edge: no country borders, no choropleth. */
+.wm-coast {
+  fill: none;
+  stroke: #b8dcb4;
+  stroke-width: 3px;
+  stroke-opacity: 0.1;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.wm-land {
+  fill: url(#wm-land-g);
+  stroke: #cfe8c4;
+  stroke-width: 0.6px;
+  stroke-opacity: 0.2;
+  vector-effect: non-scaling-stroke;
+  transition: fill var(--dur-slow) var(--ease-out);
+}
+.wm-map[data-active]:not([data-active='']) .wm-land { fill: #17271f; }
+
+.wm-region {
+  fill: transparent;
+  stroke: transparent;
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+  cursor: pointer;
+  transition:
+    fill var(--dur-medium) var(--ease-out),
+    stroke var(--dur-medium) var(--ease-out);
+}
+.wm-region[data-kind='tropical'] { fill: color-mix(in oklab, #79ad4e 36%, transparent); stroke: rgb(214 240 160 / 28%); }
+.wm-region[data-kind='boreal'] { fill: color-mix(in oklab, #58a09a 30%, transparent); stroke: rgb(180 232 226 / 24%); }
+.wm-region[data-kind='dry'] { fill: color-mix(in oklab, #bd9552 36%, transparent); stroke: rgb(240 214 160 / 28%); }
+.wm-region[data-kind='case'] { fill: color-mix(in oklab, #d9c7a2 30%, transparent); }
+.wm-region[data-kind='local'] { fill: color-mix(in oklab, #f6dd94 14%, transparent); }
+.wm-region:hover { stroke: rgb(255 241 194 / 70%); }
+.wm-region[data-on='true'] { stroke: #fff1c2; stroke-width: 1.4px; }
+.wm-region[data-on='true'][data-kind='tropical'] { fill: color-mix(in oklab, #9bd466 62%, transparent); }
+.wm-region[data-on='true'][data-kind='boreal'] { fill: color-mix(in oklab, #7fd0c8 52%, transparent); }
+.wm-region[data-on='true'][data-kind='dry'] { fill: color-mix(in oklab, #e0b46a 58%, transparent); }
+.wm-region[data-on='true'][data-kind='case'] { fill: color-mix(in oklab, #efe0bc 46%, transparent); }
+.wm-region[data-on='true'][data-kind='local'] { fill: color-mix(in oklab, #f6dd94 22%, transparent); }
+.wm-map[data-active]:not([data-active='']) .wm-region:not([data-on='true']) { fill: transparent; stroke: transparent; }
+
+/* Borders belong to the place being looked at, and only to it. */
+.wm-borders path {
+  fill: none;
+  stroke: #fff1c2;
+  stroke-width: 0.8px;
+  stroke-opacity: 0.55;
+  vector-effect: non-scaling-stroke;
+}
+.wm-lamp { pointer-events: none; animation: wm-lamp var(--dur-slow) var(--ease-out); }
+@keyframes wm-lamp { from { opacity: 0; } }
+
+.wm-labels { pointer-events: none; }
+.wm-label {
+  font-family: var(--font-mono);
+  font-size: calc(6.6px / var(--k, 1));
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  fill: #fff4d2;
+  paint-order: stroke;
+  stroke: rgb(3 10 9 / 85%);
+  stroke-width: calc(2.4px / var(--k, 1));
+  stroke-linejoin: round;
+  opacity: 0;
+  transition: opacity var(--dur-medium) var(--ease-out);
+}
+.wm-label[data-on='true'] { opacity: 1; }
+
+/* — The basin: a leaf's veins, then a river system. One network, drawn once. — */
+.wm-basin {
+  --vw: 1;
+  pointer-events: none;
+}
+.wm-leaf {
+  fill: url(#wm-lamina-g);
+  stroke: #1c4026;
+  stroke-width: 3px;
+  vector-effect: non-scaling-stroke;
+}
+.wm-vein {
+  fill: none;
+  stroke: #d2e6a6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.wm-vein--mid { stroke-width: calc(var(--vw) * 24px); }
+.wm-vein--sec { stroke-width: calc(var(--vw) * 9px); }
+.wm-vein--fine { stroke-width: calc(var(--vw) * 2.8px); opacity: 0.9; }
+
+/* — Type in the image — */
 .wm-layout {
   position: absolute;
   inset: 0;
+  pointer-events: none;
 }
 .wm-head {
   position: absolute;
@@ -11,9 +143,9 @@
   left: var(--gutter);
   right: var(--gutter);
   z-index: var(--z-narration);
-  pointer-events: none;
-  text-shadow: 0 2px 20px rgb(0 0 0 / 80%);
+  text-shadow: 0 2px 24px rgb(0 0 0 / 85%);
 }
+.wm-head .title { max-width: 32ch; font-size: clamp(1.4rem, 2.65vw, 2.75rem); }
 .wm-instruction {
   margin-top: var(--space-2);
   color: var(--sunlight-soft);
@@ -25,154 +157,45 @@
   z-index: var(--z-interaction);
   list-style: none;
   margin: 0;
-  padding: var(--space-3) var(--space-3) var(--space-3) 0;
+  padding: 0;
   width: 15rem;
   display: grid;
-  gap: 0.1rem;
-  background: linear-gradient(to right, rgb(6 10 9 / 85%), rgb(6 10 9 / 40%));
+  gap: 0.05rem;
+  pointer-events: auto;
 }
 .wm-item {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.7rem;
   width: 100%;
-  padding: 0.55rem 0.5rem;
+  padding: 0.5rem 0;
   text-align: left;
   font-size: var(--fs-small);
   color: var(--text-muted);
-  border-left: 1px solid transparent;
-  transition:
-    color var(--dur-quick) var(--ease-out),
-    background var(--dur-quick) var(--ease-out);
+  text-shadow: 0 1px 14px rgb(0 0 0 / 90%), 0 0 3px rgb(0 0 0 / 80%);
+  transition: color var(--dur-quick) var(--ease-out);
 }
-.wm-item:hover {
-  color: var(--text-primary);
-  background: rgb(241 236 226 / 5%);
-}
-.wm-item[aria-pressed='true'] {
-  color: var(--text-primary);
-  border-color: var(--sunlight);
-  background: rgb(241 236 226 / 6%);
-}
+.wm-item:hover { color: var(--text-primary); }
+.wm-item[aria-pressed='true'] { color: #fff1c2; }
 .wm-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+  width: 14px;
+  height: 1px;
+  flex: none;
   background: var(--leaf-bright);
 }
+.wm-item[aria-pressed='true'] .wm-dot { width: 26px; background: #fff1c2; }
 .wm-item[data-kind='boreal'] .wm-dot { background: #7fb4c0; }
 .wm-item[data-kind='dry'] .wm-dot { background: var(--ochre); }
 .wm-item[data-kind='case'] .wm-dot { background: var(--dust-pale); }
 .wm-item[data-kind='local'] .wm-dot { background: var(--sunlight); }
 .wm-band {
   width: 14px;
-  height: 6px;
-  background: color-mix(in oklab, var(--sunlight) 50%, transparent);
+  height: 0;
+  flex: none;
+  border-top: 1px dotted var(--sunlight);
 }
-.wm-item--toggle {
-  margin-top: var(--space-3);
-  border-top: var(--rule);
-}
-
-.wm-map {
-  position: absolute;
-  inset: clamp(8rem, 16vh, 10rem) 0 clamp(1rem, 3vh, 2rem);
-}
-.wm-map svg {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-.wm-sphere {
-  fill: #0b1715;
-  stroke: rgb(241 236 226 / 18%);
-  vector-effect: non-scaling-stroke;
-}
-.wm-graticule {
-  fill: none;
-  stroke: rgb(241 236 226 / 6%);
-  stroke-width: 0.6;
-  vector-effect: non-scaling-stroke;
-}
-.wm-tropics {
-  fill: color-mix(in oklab, var(--sunlight) 9%, transparent);
-  opacity: 0;
-  transition: opacity var(--dur-slow) var(--ease-out);
-}
-.wm-tropics[data-on='true'] {
-  opacity: 1;
-}
-.wm-land {
-  fill: #23332c;
-  stroke: #0b1715;
-  stroke-width: 0.5;
-  vector-effect: non-scaling-stroke;
-}
-.wm-region {
-  fill: transparent;
-  stroke: transparent;
-  vector-effect: non-scaling-stroke;
-  cursor: pointer;
-  transition:
-    fill var(--dur-medium) var(--ease-out),
-    stroke var(--dur-medium) var(--ease-out);
-}
-.wm-region[data-kind='tropical'] { fill: color-mix(in oklab, var(--leaf) 35%, transparent); }
-.wm-region[data-kind='boreal'] { fill: color-mix(in oklab, #7fb4c0 22%, transparent); }
-.wm-region[data-kind='dry'] { fill: color-mix(in oklab, var(--ochre) 30%, transparent); }
-.wm-region:hover {
-  stroke: rgb(241 236 226 / 50%);
-}
-.wm-region[data-on='true'] {
-  stroke: var(--sunlight-soft);
-  stroke-width: 1.2;
-  filter: url(#wm-glow);
-}
-.wm-region[data-on='true'][data-kind='tropical'] { fill: color-mix(in oklab, var(--leaf-bright) 60%, transparent); }
-.wm-region[data-on='true'][data-kind='boreal'] { fill: color-mix(in oklab, #7fb4c0 55%, transparent); }
-.wm-region[data-on='true'][data-kind='dry'] { fill: color-mix(in oklab, var(--ochre) 60%, transparent); }
-.wm-region[data-on='true'][data-kind='case'] { fill: color-mix(in oklab, var(--dust-pale) 45%, transparent); }
-.wm-region[data-on='true'][data-kind='local'] { fill: color-mix(in oklab, var(--sunlight) 10%, transparent); }
-
-.wm-marker {
-  pointer-events: none;
-}
-.wm-marker-dot {
-  r: calc(3px / var(--k, 1));
-  fill: var(--dust-pale);
-}
-.wm-marker-ring {
-  r: calc(8px / var(--k, 1));
-  fill: none;
-  stroke: var(--dust-pale);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-  opacity: 0.4;
-}
-.wm-marker[data-kind='local'] .wm-marker-dot,
-.wm-marker[data-kind='local'] .wm-marker-ring {
-  fill: var(--sunlight);
-  stroke: var(--sunlight);
-}
-.wm-marker[data-kind='local'] .wm-marker-ring {
-  fill: none;
-  animation: wm-pulse 2.4s var(--ease-out) infinite;
-  transform-box: fill-box;
-  transform-origin: center;
-}
-.wm-marker[data-on='true'] .wm-marker-ring {
-  opacity: 1;
-}
-@keyframes wm-pulse {
-  from {
-    transform: scale(0.6);
-    opacity: 0.9;
-  }
-  to {
-    transform: scale(2.2);
-    opacity: 0;
-  }
-}
+.wm-item--toggle { margin-top: var(--space-3); }
+.wm-item--toggle[aria-pressed='false'] { opacity: 0.6; }
 
 .wm-panel {
   position: absolute;
@@ -182,48 +205,42 @@
   width: min(21rem, 30vw);
   display: grid;
   gap: var(--space-3);
-  padding: var(--space-4) 0 var(--space-4) var(--space-4);
-  background: linear-gradient(to left, rgb(6 10 9 / 88%), rgb(6 10 9 / 50%));
+  padding-left: var(--space-4);
   border-left: 1px solid color-mix(in oklab, var(--sunlight) 45%, transparent);
+  text-shadow: 0 1px 18px rgb(0 0 0 / 90%), 0 0 4px rgb(0 0 0 / 80%);
+  pointer-events: auto;
 }
 .wm-panel-name {
   font-family: var(--font-display);
-  font-size: var(--fs-title);
+  font-size: clamp(1.5rem, 2.2vw, 2.4rem);
   line-height: 1.1;
 }
+.wm-geography-note { font-size: var(--fs-micro); color: var(--text-muted); }
 .wm-facts {
   display: grid;
   gap: var(--space-4);
   margin-top: var(--space-3);
 }
-.wm-facts .stat-value {
-  font-size: var(--fs-lead);
-}
+.wm-facts .stat-value { font-size: var(--fs-lead); }
 
 @media (max-width: 900px) {
-  .wm-layout {
-    position: relative;
-    display: grid;
-    gap: var(--space-4);
-    padding: 5rem var(--gutter) 2rem;
-  }
-  .wm-head,
-  .wm-list,
-  .wm-map,
-  .wm-panel {
-    position: relative;
-    inset: auto;
-    width: auto;
-  }
-  .wm-map {
-    aspect-ratio: 2 / 1.05;
-  }
+  .wm-map { inset: 22vh 0 auto 0; height: 38vh; }
+  .wm-stage { overflow-y: auto; }
   .wm-list {
+    position: absolute;
+    left: var(--gutter);
+    right: var(--gutter);
+    bottom: 22vh;
+    width: auto;
     display: flex;
     flex-wrap: wrap;
-    background: none;
+    gap: 0 var(--space-4);
   }
-  .wm-item {
+  .wm-item { width: auto; }
+  .wm-panel {
+    left: var(--gutter);
+    right: var(--gutter);
+    bottom: 3vh;
     width: auto;
   }
 }

@@ -4,7 +4,7 @@
 .fi-forest {
   position: absolute;
   inset: 0;
-  opacity: 0;
+  opacity: 1;
 }
 .fi-lines {
   position: absolute;
@@ -18,80 +18,16 @@
   pointer-events: none;
   text-shadow: 0 2px 34px rgb(0 0 0 / 70%);
 }
-.fi-before {
-  --strike: 0;
-  position: relative;
-  opacity: 0;
-  font-size: var(--fs-title);
-}
-.fi-before::after {
-  content: '';
-  position: absolute;
-  left: -0.2em;
-  right: -0.2em;
-  top: 55%;
-  height: 0.06em;
-  background: var(--sunlight-soft);
-  transform: scaleX(var(--strike));
-  transform-origin: left;
-}
+.fi-before { opacity: 0; max-width: 18ch; font-size: var(--fs-display); }
+.fi-after { font-size: var(--fs-title); }
+.fi-compare { position: absolute; z-index: 21; bottom: 5vh; left: 50%; translate: -50% 0; width: min(30rem, 85vw); display: grid; gap: .6rem; text-align: center; font-size: var(--fs-small); padding: .8rem 1rem; background: #07140fba; transition: opacity var(--dur-medium); }
+.fi-compare p { color: var(--text-muted); font-size: var(--fs-micro); }
+.fi-stage[data-settled='true'] .fi-compare:not(:focus-within):not(:hover) { opacity: .08; }
+.fi-stage[data-settled='true'] .fs-mist { animation-duration: 90s; }
+.fi-stage .fs-depth[data-depth='1'] { opacity: calc(.25 + var(--final-life) * .75); }
+.fi-stage .fs-depth[data-depth='2'] { opacity: calc(.1 + var(--final-life) * .9); }
+.fi-stage .fs-depth[data-depth='3'] { opacity: calc(.15 + var(--final-life) * .85); }
 .fi-after {
   opacity: 0;
   color: var(--sunlight-soft);
-}
-.fi-thanks {
-  opacity: 0;
-  margin-top: var(--space-6);
-  color: var(--text-primary);
-}
-
-.fi-after-content {
-  position: relative;
-  background: linear-gradient(to bottom, var(--forest-black), #08110e 30%);
-  padding: var(--space-9) var(--gutter) var(--space-8);
-  display: grid;
-  gap: var(--space-9);
-}
-.fi-actions,
-.fi-sources {
-  max-width: 64rem;
-  margin-inline: auto;
-  width: 100%;
-  display: grid;
-  gap: var(--space-6);
-}
-.fi-actions ol {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: var(--space-5);
-}
-.fi-actions li {
-  display: grid;
-  grid-template-columns: 4.5rem 1fr;
-  align-items: baseline;
-  gap: var(--space-4);
-  padding-top: var(--space-4);
-  border-top: var(--rule);
-}
-.fi-num {
-  font-family: var(--font-mono);
-  font-size: var(--fs-small);
-  color: var(--sunlight-soft);
-}
-.fi-actions p {
-  font-family: var(--font-display);
-  font-size: var(--fs-lead);
-  line-height: 1.35;
-  max-width: 44rem;
-}
-.fi-buttons {
-  display: flex;
-  gap: var(--space-3);
-  flex-wrap: wrap;
-}
-.fi-credits {
-  font-size: var(--fs-small);
-  color: var(--text-faint);
 }

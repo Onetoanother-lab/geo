@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import type { ChapterId } from './chapters';
+import type { IllustrativeResult } from '../lib/cinema/ecology';
 
 export type MotionPreference = 'system' | 'reduced' | 'full';
 
@@ -15,7 +16,12 @@ export type AppState = {
   progress: number;
   sourcesOpen: boolean;
   navOpen: boolean;
-  presenterOpen: boolean;
+  cinemaMode: boolean;
+  chapterProgress: number;
+  currentBeat: string;
+  presentationStartedAt: number | null;
+  simulatorResult: IllustrativeResult | null;
+  futureBalance: number;
 };
 
 type Listener = () => void;
@@ -34,7 +40,12 @@ export const initialState: AppState = {
   progress: 0,
   sourcesOpen: false,
   navOpen: false,
-  presenterOpen: false,
+  cinemaMode: true,
+  chapterProgress: 0,
+  currentBeat: '',
+  presentationStartedAt: null,
+  simulatorResult: null,
+  futureBalance: 0.62,
 };
 
 let state: AppState = initialState;
@@ -100,10 +111,6 @@ export function closeTopOverlay(): boolean {
   }
   if (state.navOpen) {
     setState({ navOpen: false });
-    return true;
-  }
-  if (state.presenterOpen) {
-    setState({ presenterOpen: false });
     return true;
   }
   return false;

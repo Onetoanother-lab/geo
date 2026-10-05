@@ -1,7 +1,8 @@
 import { SOURCES } from '../../content/sources';
 import { FACTS, RESEARCH_GAPS, formatFact, type FactId } from '../../content/facts';
+import { NARRATIVE } from '../../content/narrative';
 
-/** All sources, each with the facts that cite it. Used by the dialog and the finale. */
+/** All sources, each with the facts that cite it, and the production credits. */
 export function SourcesList({ headingLevel = 3 }: { headingLevel?: 2 | 3 }) {
   const H = `h${headingLevel}` as 'h2' | 'h3';
   return (
@@ -48,6 +49,7 @@ export function SourcesList({ headingLevel = 3 }: { headingLevel?: 2 | 3 }) {
           </ul>
         </details>
       )}
+      <p className="sources-credits">{NARRATIVE.finale.credits}</p>
     </div>
   );
 }

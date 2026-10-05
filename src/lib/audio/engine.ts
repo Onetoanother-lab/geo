@@ -7,6 +7,7 @@
  * every failure is silent.
  */
 import { AUDIO_MANIFEST, type BedId } from './manifest';
+import { clamp, richness } from '../cinema/ecology';
 
 export type { BedId };
 type Bed = { gain: GainNode; stop: () => void };
@@ -22,6 +23,10 @@ class AudioEngine {
   private muted = true;
   private birdTimer: number | undefined;
   private noise: AudioBuffer | null = null;
+  private layers = new Map<string, GainNode>();
+  private health = 0.9;
+  private hush = 1;
+  private zone: 'forest' | 'aral' = 'forest';
 
   get available(): boolean {
     return typeof window !== 'undefined' && ('AudioContext' in window || 'webkitAudioContext' in window);
@@ -55,7 +60,47 @@ class AudioEngine {
     this.master.gain.setTargetAtTime(muted ? 0 : MASTER_LEVEL, t, muted ? 0.25 : 0.9);
     if (!muted) void this.ctx.resume().catch(() => undefined);
     if (muted) this.stopBirds();
-    else if (this.current === 'forest') this.scheduleBirds();
+    else if (this.health > 0.35 && this.hush > 0.1) this.scheduleBirds();
+  }
+
+  /** A normalized illustrative condition, shared with the visual director. */
+  setEcology(health: number, zone: 'forest' | 'aral' = 'forest', hush = 1): void {
+    const changed = this.health !== clamp(health) || this.hush !== clamp(hush) || this.zone !== zone;
+    this.health = clamp(health);
+    this.hush = clamp(hush);
+    this.zone = zone;
+    if (!this.ctx) return;
+    if (!changed && this.current === 'forest' && this.beds.has('forest')) return;
+    if (this.current !== 'forest' || !this.beds.has('forest')) this.setBed('forest');
+    const r = richness(this.health);
+    const values: Record<string, number> = {
+      leaves: r.leaves * (zone === 'aral' ? 0.15 : 1),
+      water: r.water * (zone === 'aral' ? 0 : 1),
+      insects: r.insects * (zone === 'aral' ? 0.05 : 1),
+      wind: zone === 'aral' ? 0.9 : r.wind,
+      birds: r.birds * (zone === 'aral' ? 0.05 : 1),
+    };
+    for (const [id, g] of this.layers) {
+      const target = (values[id] ?? 0) * this.hush;
+      g.gain.setTargetAtTime(target, this.ctx.currentTime, this.hush < 0.1 ? 0.12 : 0.55);
+    }
+    if (r.birds < 0.03 || this.hush < 0.1 || this.muted) this.stopBirds();
+    else if (this.birdTimer === undefined) this.scheduleBirds();
+  }
+
+  /** Brief optional calibration tone. It still respects mute and the entry gesture. */
+  check(): void {
+    if (!this.ctx || !this.master || this.muted) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    const t = this.ctx.currentTime;
+    osc.frequency.value = 440;
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(0.05, t + 0.08);
+    gain.gain.linearRampToValueAtTime(0, t + 0.65);
+    osc.connect(gain).connect(this.master);
+    osc.start(); osc.stop(t + 0.7);
+    osc.onended = () => { osc.disconnect(); gain.disconnect(); };
   }
 
   /** Crossfades to an ambience bed. */
@@ -83,9 +128,10 @@ class AudioEngine {
   }
 
   /** One-shot cues. */
-  cue(name: 'treefall' | 'hush'): void {
+  cue(name: 'treefall' | 'hush' | 'creak' | 'impact'): void {
     if (!this.ctx || !this.master || this.muted) return;
-    if (name === 'treefall') this.treeFall();
+    if (name === 'creak') this.creak();
+    if (name === 'treefall' || name === 'impact') this.treeFall();
   }
 
   // — Beds —
@@ -101,10 +147,19 @@ class AudioEngine {
     if (file) void this.tryFile(file, gain).then((stop) => stop && stops.push(stop));
 
     if (id === 'forest' || id === 'forest-thin') {
+      const layer = (name: string) => {
+        const g = this.ctx!.createGain();
+        g.gain.value = 0;
+        g.connect(gain);
+        this.layers.set(name, g);
+        return g;
+      };
       // Leaves: pink noise through a band, slowly breathing.
-      stops.push(this.noiseLayer(gain, { type: 'bandpass', freq: 900, q: 0.6, level: id === 'forest' ? 0.16 : 0.08, lfo: 0.07, depth: 0.5 }));
-      stops.push(this.noiseLayer(gain, { type: 'lowpass', freq: 380, q: 0.4, level: 0.12, lfo: 0.03, depth: 0.4 }));
-      if (id === 'forest') stops.push(this.insects(gain));
+      stops.push(this.noiseLayer(layer('leaves'), { type: 'bandpass', freq: 900, q: 0.6, level: 0.13, lfo: 1 / 9, depth: 0.22 }));
+      stops.push(this.noiseLayer(layer('water'), { type: 'bandpass', freq: 1800, q: 0.4, level: 0.08, lfo: 0.03, depth: 0.25 }));
+      stops.push(this.noiseLayer(layer('wind'), { type: 'lowpass', freq: 420, q: 0.6, level: 0.22, lfo: 0.05, depth: 0.5, sweep: 150 }));
+      stops.push(this.insects(layer('insects')));
+      layer('birds');
     }
     if (id === 'wind') {
       stops.push(this.noiseLayer(gain, { type: 'lowpass', freq: 520, q: 0.9, level: 0.26, lfo: 0.05, depth: 0.75, sweep: 380 }));
@@ -202,9 +257,9 @@ class AudioEngine {
   private scheduleBirds(): void {
     this.stopBirds();
     const tick = () => {
-      if (this.current !== 'forest' || this.muted) return;
+      if (this.muted || this.health < 0.35 || this.hush < 0.1) { this.birdTimer = undefined; return; }
       this.bird();
-      this.birdTimer = window.setTimeout(tick, 2600 + Math.random() * 6500);
+      this.birdTimer = window.setTimeout(tick, (2600 + Math.random() * 6500) / Math.max(0.15, richness(this.health).birds));
     };
     this.birdTimer = window.setTimeout(tick, 1800);
   }
@@ -216,13 +271,13 @@ class AudioEngine {
 
   private bird(): void {
     const ctx = this.ctx;
-    const bed = this.beds.get('forest');
-    if (!ctx || !bed) return;
+    const birdLayer = this.layers.get('birds');
+    if (!ctx || !birdLayer || this.zone === 'aral') return;
     const notes = 2 + Math.floor(Math.random() * 4);
     const base = 2300 + Math.random() * 1800;
     const pan = ctx.createStereoPanner();
     pan.pan.value = Math.random() * 1.6 - 0.8;
-    pan.connect(bed.gain);
+    pan.connect(birdLayer);
     let t = ctx.currentTime + 0.05;
     for (let i = 0; i < notes; i++) {
       const osc = ctx.createOscillator();
@@ -238,11 +293,13 @@ class AudioEngine {
       osc.connect(g).connect(pan);
       osc.start(t);
       osc.stop(t + len + 0.02);
+      const final = i === notes - 1;
+      osc.onended = () => { osc.disconnect(); g.disconnect(); if (final) pan.disconnect(); };
       t += len + 0.03 + Math.random() * 0.08;
     }
   }
 
-  private treeFall(): void {
+  private creak(): void {
     const ctx = this.ctx!;
     const out = this.master!;
     const t0 = ctx.currentTime;
@@ -262,25 +319,27 @@ class AudioEngine {
     creak.connect(creakF).connect(creakG).connect(out);
     creak.start(t0);
     creak.stop(t0 + 1.6);
-    // Cracks: short bright noise bursts.
-    for (let i = 0; i < 5; i++) {
-      const at = t0 + 0.9 + i * (0.05 + Math.random() * 0.09);
-      this.burst(out, at, 0.05, 'highpass', 1800, 0.22);
-    }
+    creak.onended = () => { creak.disconnect(); creakF.disconnect(); creakG.disconnect(); };
+  }
+
+  private treeFall(): void {
+    const ctx = this.ctx!;
+    const out = this.master!;
     // Impact: low thump + debris.
-    const thumpAt = t0 + 2.1;
+    const thumpAt = ctx.currentTime;
     const thump = ctx.createOscillator();
     thump.type = 'sine';
     thump.frequency.setValueAtTime(70, thumpAt);
     thump.frequency.exponentialRampToValueAtTime(28, thumpAt + 0.6);
     const thumpG = ctx.createGain();
     thumpG.gain.setValueAtTime(0.0001, thumpAt);
-    thumpG.gain.exponentialRampToValueAtTime(0.5, thumpAt + 0.02);
+    thumpG.gain.exponentialRampToValueAtTime(0.3, thumpAt + 0.02);
     thumpG.gain.exponentialRampToValueAtTime(0.0001, thumpAt + 0.9);
     thump.connect(thumpG).connect(out);
     thump.start(thumpAt);
     thump.stop(thumpAt + 1);
-    this.burst(out, thumpAt, 1.4, 'lowpass', 700, 0.28);
+    thump.onended = () => { thump.disconnect(); thumpG.disconnect(); };
+    this.burst(out, thumpAt, 0.9, 'lowpass', 700, 0.18);
   }
 
   private burst(out: AudioNode, at: number, len: number, type: BiquadFilterType, freq: number, level: number): void {
@@ -297,6 +356,7 @@ class AudioEngine {
     src.connect(f).connect(g).connect(out);
     src.start(at, Math.random() * 3);
     src.stop(at + len + 0.05);
+    src.onended = () => { src.disconnect(); f.disconnect(); g.disconnect(); };
   }
 
   private makeNoise(seconds: number): AudioBuffer {

@@ -1,8 +1,10 @@
 .cq-stage {
   background:
-    radial-gradient(ellipse at 50% 55%, #141a14 0%, #0a0c0a 70%),
-    #0a0c0a;
+    radial-gradient(ellipse 70% 34% at 50% 52%, #2b2a24 0%, transparent 72%),
+    radial-gradient(ellipse at 50% 55%, #171a15 0%, #090a08 78%),
+    #090a08;
 }
+.cq-dust { z-index: 1; }
 .cq-title {
   position: absolute;
   inset: 0 var(--gutter);
@@ -58,8 +60,9 @@
 }
 .cq-line-ghost {
   fill: none;
-  stroke: rgb(241 236 226 / 7%);
-  stroke-width: 2;
+  stroke: rgb(241 236 226 / 9%);
+  stroke-width: 14;
+  stroke-linecap: round;
 }
 .cq-line {
   fill: none;
@@ -68,9 +71,9 @@
   stroke-linecap: round;
 }
 .cq-node-ring {
-  fill: #0d100d;
-  stroke: color-mix(in oklab, var(--ochre) 70%, transparent);
-  stroke-width: 1.5;
+  fill: rgb(12 13 10 / 70%);
+  stroke: color-mix(in oklab, var(--ochre) 55%, transparent);
+  stroke-width: 1;
 }
 .cq-icon {
   fill: none;

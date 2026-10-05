@@ -137,6 +137,11 @@ export function Causes() {
                 <rect width="24" height="24" fill="#b09153" />
                 <rect width="24" height="9" fill="#9c7f46" />
               </pattern>
+              <radialGradient id="cz-sun" cx="68%" cy="22%" r="75%">
+                <stop offset="0" stopColor="#f6dd94" stopOpacity="0.34" />
+                <stop offset="0.5" stopColor="#f6dd94" stopOpacity="0.08" />
+                <stop offset="1" stopColor="#02080a" stopOpacity="0.42" />
+              </radialGradient>
               <radialGradient id="cz-burn">
                 <stop offset="0" stopColor="#1d1611" />
                 <stop offset="0.7" stopColor="#2c2018" />
@@ -206,6 +211,7 @@ export function Causes() {
                 ))}
               </g>
             </g>
+            <circle cx={C} cy={C} r={R} fill="url(#cz-sun)" className="cz-light" />
             <circle cx={C} cy={C} r={R} className="cz-rim" />
           </svg>
 

@@ -47,6 +47,7 @@
   color: var(--text-primary);
   max-width: 50rem;
 }
+.pw-actions,
 .pw-sources {
   margin-top: var(--space-6);
   color: var(--text-muted);
@@ -56,3 +57,22 @@
   font-family: var(--font-mono);
   color: var(--sunlight-soft);
 }
+.pw-duration { font: var(--fs-small) var(--font-mono); color: var(--text-muted); }
+.pw-beat { padding-block: 1.4rem; border-block: 1px solid #52634b; display: grid; gap: .7rem; }
+.pw-next-point { color: var(--sunlight-soft); }
+.pw-small { font-size: var(--fs-small); color: var(--text-muted); }
+.calibration { display: grid; gap: 1rem; margin-block: 1rem 2rem; padding: 1rem; border: 1px solid #718269; }
+.calibration-frame { position: relative; aspect-ratio: 16 / 9; background: #07100c; overflow: hidden; border: 2px solid #f0e0ae; }
+.calibration-safe { position: absolute; inset: 5%; border: 1px dashed #b9c982; }
+.calibration-safe > span { position: absolute; top: .35rem; left: .7rem; font-size: .65rem; }
+.calibration-ratio { position: absolute; right: 1%; top: 1%; font: .7rem var(--font-mono); }
+.calibration-content { position: absolute; inset: 17% 9% 9%; display: grid; gap: 5%; align-content: center; }
+.calibration-steps { display: flex; height: 5vw; min-height: 40px; }
+.calibration-steps > div { flex: 1; position: relative; }
+.calibration-steps span { position: absolute; bottom: .2rem; left: .3rem; font-size: .6rem; color: #eee8d2; }
+.calibration-body { color: #f1ece2; font-size: clamp(.6rem, 1.5vw, 1rem); }
+.calibration-muted { color: #b5b0a3; font-size: clamp(.55rem, 1.3vw, .85rem); }
+.calibration-content .title { font-size: clamp(1rem, 2.8vw, 2rem); }
+.calibration-lift { position: absolute; inset: 0; pointer-events: none; background: #c1c8af; }
+.calibration-lift-label { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+.calibration button:disabled { opacity: .45; cursor: default; }

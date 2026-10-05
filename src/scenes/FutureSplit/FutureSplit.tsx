@@ -1,10 +1,12 @@
-import { useMemo, useRef, useState, type PointerEvent } from 'react';
+import { useMemo, useRef, type PointerEvent } from 'react';
 import { Scene } from '../../components/layout/Scene';
 import { ForestScene } from '../../components/visualizations/forest/ForestScene';
 import { useSceneTimeline } from '../../lib/animation/useSceneTimeline';
+import { tweenLife } from '../../lib/animation/life';
 import { NARRATIVE } from '../../content/narrative';
 import { generateLayer, mergeLayer, ridgePath, stumpPath, mulberry32, translatePath } from '../../lib/forest/generate';
 import { rootSystem } from '../../lib/forest/roots';
+import { setState, useStore } from '../../app/store';
 import './FutureSplit.css';
 
 const T = NARRATIVE.futures;
@@ -33,21 +35,29 @@ function useFutureLayers() {
 export function FutureSplit() {
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
-  const [seam, setSeam] = useState(50);
+  const result = useStore((s) => s.simulatorResult);
+  const balance = useStore((s) => s.futureBalance);
+  const seam = (1 - balance) * 100;
+  const changeSeam = (value: number) => setState({ futureBalance: 1 - value / 100 });
+  const startingLife = .55 + ((result?.forestHealth ?? .5) - .5) * .3;
   const dragging = useRef(false);
   const layers = useFutureLayers();
 
   useSceneTimeline(sectionRef, stageRef, {
     chapter: 'futures',
     length: 3.8,
-    build: (tl, { reduced, q }) => {
+    revision: result,
+    build: (tl, { reduced, q, narrate }) => {
+      narrate('.fu-end1', 80);
+      narrate('.fu-end2', 89);
       const a = q('.fu-a .forest-scene')[0];
       const b = q('.fu-b .forest-scene')[0];
+      tweenLife(tl, a, startingLife, 0.06, 70, 8);
+      tweenLife(tl, b, startingLife, .92, 70, 8);
       tl.addLabel('beat:start', 4)
         .fromTo('.fu-veil', { opacity: 1 }, { opacity: 0, duration: 6 }, 0)
         .fromTo('.fu-labels', { opacity: 0 }, { opacity: 1, duration: 4 }, 4)
         // Trajectory A: degradation.
-        .fromTo(a, { '--life': 0.62 }, { '--life': 0.06, duration: 70 }, 8)
         .fromTo(q('.fu-a .fs-depth[data-depth="2"]'), { opacity: 1 }, { opacity: 0.12, duration: 50 }, 14)
         .fromTo(q('.fu-a .fs-depth[data-depth="1"]'), { opacity: 1 }, { opacity: 0.3, duration: 60 }, 18)
         .fromTo(q('.fu-a .fs-depth[data-depth="3"]'), { opacity: 1 }, { opacity: 0, duration: 40 }, 16)
@@ -56,13 +66,10 @@ export function FutureSplit() {
         .fromTo('.fu-bare', { opacity: 0 }, { opacity: 1, duration: 40 }, 20)
         .fromTo('.fu-stumps', { opacity: 0 }, { opacity: 1, duration: 30 }, 24)
         // Trajectory B: protection + restoration.
-        .fromTo(b, { '--life': 0.62 }, { '--life': 1, duration: 70 }, 8)
         .fromTo('.fu-saplings', { opacity: 0, scaleY: reduced ? 1 : 0.15 }, { opacity: 1, scaleY: 1, transformOrigin: '50% 100%', duration: 60 }, 12)
         .fromTo('.fu-time-fill', { scaleX: 0 }, { scaleX: 1, duration: 72 }, 8)
         .addLabel('beat:mid', 46)
-        .fromTo('.fu-end1', { opacity: 0, y: reduced ? 0 : 14 }, { opacity: 1, y: 0, duration: 5 }, 80)
         .addLabel('beat:end1', 86)
-        .fromTo('.fu-end2', { opacity: 0, y: reduced ? 0 : 14 }, { opacity: 1, y: 0, duration: 5 }, 89)
         .addLabel('beat:end2', 96);
     },
   });
@@ -70,20 +77,20 @@ export function FutureSplit() {
   const fromPointer = (e: PointerEvent<HTMLDivElement>) => {
     const r = stageRef.current?.getBoundingClientRect();
     if (!r) return;
-    setSeam(Math.min(96, Math.max(4, ((e.clientX - r.left) / r.width) * 100)));
+    changeSeam(Math.min(96, Math.max(4, ((e.clientX - r.left) / r.width) * 100)));
   };
 
   return (
     <Scene chapter="futures" sectionRef={sectionRef} stageRef={stageRef} stageClassName="fu-stage">
       <div className="fu-b">
-        <ForestScene seed={11} life={0.62} dustColor="#f3dfae">
+        <ForestScene hero seed={11} life={startingLife} dustColor="#f3dfae">
           <svg className="fu-extra" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
             <path d={layers.saplings} className="fu-saplings" />
           </svg>
         </ForestScene>
       </div>
       <div className="fu-a" style={{ clipPath: `inset(0 ${100 - seam}% 0 0)` }}>
-        <ForestScene seed={11} life={0.62} dustColor="#c9b08a">
+        <ForestScene hero seed={11} life={startingLife} dustColor="#c9b08a">
           <svg className="fu-extra" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
             <defs>
               <linearGradient id="fu-bare-g" x1="0" y1="0" x2="0" y2="1">
@@ -143,7 +150,7 @@ export function FutureSplit() {
         <label className="visually-hidden" htmlFor="fu-range">
           {T.seam}
         </label>
-        <input id="fu-range" className="fu-range" type="range" min={4} max={96} step={1} value={Math.round(seam)} onChange={(e) => setSeam(Number(e.target.value))} />
+        <input id="fu-range" className="fu-range" type="range" min={4} max={96} step={1} value={Math.round(seam)} onChange={(e) => changeSeam(Number(e.target.value))} />
       </div>
 
       <p className="fu-disclaimer">{T.disclaimer}</p>

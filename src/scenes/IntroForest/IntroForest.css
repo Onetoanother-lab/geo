@@ -1,26 +1,11 @@
-.intro-overlay {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 2;
-  overflow: visible;
-}
+.intro-stump-rings { opacity: 0; }
+.intro-notjust, .intro-systemline { visibility: hidden; }
+.intro-notjust p, .intro-systemline p { padding: .4em; background: radial-gradient(ellipse, #08150cc7, transparent 72%); }
 
-.intro-gap {
-  position: absolute;
-  top: -10%;
-  left: 55%;
-  width: 18vw;
-  height: 110%;
-  translate: -50% 0;
-  rotate: 8deg;
-  background: linear-gradient(to bottom, rgb(250 246 236 / 55%), rgb(250 246 236 / 8%) 70%, transparent);
-  filter: blur(22px);
-  opacity: 0;
-  pointer-events: none;
-  z-index: 2;
-}
+/* What the fall shakes loose. Rest state is set by the fall timeline; these are only the looks. */
+.intro-leaf path { fill: color-mix(in oklab, var(--tree-mid) 45%, var(--canopy-light)); }
+.intro-chip path { fill: color-mix(in oklab, var(--tree-near) 70%, #8a6c42); }
+.intro-leaf, .intro-chip, .intro-puff { opacity: 0; }
 
 .intro-dawn {
   position: absolute;
@@ -72,6 +57,12 @@
   justify-items: center;
   gap: var(--space-3);
   z-index: var(--z-narration);
+}
+/* Time reveals the hint; scroll (.intro-hint) hides it. Separate owners never fight. */
+.intro-hint-reveal {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
   opacity: 0;
 }
 .intro-hint-line {

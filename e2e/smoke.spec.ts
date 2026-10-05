@@ -99,7 +99,7 @@ test('simulator responds to a decision', async ({ page }) => {
   await enter(page);
   await page.evaluate(() => document.querySelector('[data-chapter="simulator"]')!.scrollIntoView());
   await page.waitForTimeout(800);
-  await page.getByRole('radio', { name: 'Kesish' }).click();
+  await page.getByRole('radio', { name: 'Kesish', exact: true }).click();
   const cell = page.locator('.sim-cell[data-cell="0"]');
   await cell.click();
   await expect(cell).toHaveAttribute('data-type', 'bare');

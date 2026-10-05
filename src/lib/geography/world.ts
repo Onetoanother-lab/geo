@@ -1,15 +1,49 @@
 import { geoEqualEarth, geoGraticule10, geoPath, type GeoProjection } from 'd3-geo';
-import { feature } from 'topojson-client';
-import type { Feature, FeatureCollection, Geometry, Polygon } from 'geojson';
-import type { GeometryCollection, Topology } from 'topojson-specification';
+import { feature, merge, mesh } from 'topojson-client';
+import type { Feature, FeatureCollection, Geometry, LineString, MultiLineString, MultiPolygon, Polygon } from 'geojson';
+import type { GeometryCollection, GeometryObject, MultiPolygon as TopoMultiPolygon, Polygon as TopoPolygon, Topology } from 'topojson-specification';
 
 export type CountryFeature = Feature<Geometry, { name: string }> & { id?: string };
+type CountryTopology = Topology<{ countries: GeometryCollection<{ name: string }> }>;
+
+async function loadTopology(): Promise<CountryTopology> {
+  return (await import('world-atlas/countries-110m.json')).default as unknown as CountryTopology;
+}
 
 /** Natural Earth 110m countries (bundled via world-atlas), loaded lazily as its own chunk. */
 export async function loadCountries(): Promise<CountryFeature[]> {
-  const topo = (await import('world-atlas/countries-110m.json')).default as unknown as Topology<{ countries: GeometryCollection<{ name: string }> }>;
+  const topo = await loadTopology();
   const fc = feature(topo, topo.objects.countries) as unknown as FeatureCollection<Geometry, { name: string }>;
   return fc.features as CountryFeature[];
+}
+
+/**
+ * Borderless geography for the documentary map: all land as one shape, a region as one
+ * shape, and country borders only for the countries asked for.
+ */
+export type World = {
+  countries: CountryFeature[];
+  land: MultiPolygon;
+  region: (ids: string[]) => MultiPolygon;
+  borders: (ids: string[]) => MultiLineString;
+};
+
+export async function loadWorld(): Promise<World> {
+  const topo = await loadTopology();
+  const fc = feature(topo, topo.objects.countries) as unknown as FeatureCollection<Geometry, { name: string }>;
+  const geometries = topo.objects.countries.geometries as unknown as (TopoPolygon | TopoMultiPolygon)[];
+  const pick = (ids: string[]) => geometries.filter((g) => ids.includes(String(g.id)));
+  // Antarctica (010) is left out so the map keeps its empty southern ocean.
+  const inhabited = geometries.filter((g) => String(g.id) !== '010');
+  return {
+    countries: fc.features as CountryFeature[],
+    land: merge(topo, inhabited) as MultiPolygon,
+    region: (ids) => merge(topo, pick(ids)) as MultiPolygon,
+    borders: (ids) => {
+      const chosen = new Set<GeometryObject>(pick(ids));
+      return mesh(topo, topo.objects.countries as unknown as GeometryObject, (a: GeometryObject, b: GeometryObject) => chosen.has(a) && chosen.has(b)) as MultiLineString;
+    },
+  };
 }
 
 export const MAP_W = 1000;
@@ -38,6 +72,13 @@ export function latBand(south: number, north: number): Feature<Polygon> {
   for (let lon = 180; lon >= -180; lon -= 4) coords.push([lon, south]);
   coords.push(coords[0]);
   return { type: 'Feature', properties: {}, geometry: { type: 'Polygon', coordinates: [coords] } };
+}
+
+/** A parallel as a line (dense enough to bend correctly on Equal Earth). */
+export function latLine(lat: number): Feature<LineString> {
+  const coordinates: [number, number][] = [];
+  for (let lon = -180; lon <= 180; lon += 4) coordinates.push([lon, lat]);
+  return { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates } };
 }
 
 /** Lon/lat box as a polygon (used to frame small regions such as the Aral Sea). */

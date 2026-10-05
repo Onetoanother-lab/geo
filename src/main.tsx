@@ -10,7 +10,9 @@ import '@fontsource/ibm-plex-mono/500.css';
 import './styles/tokens.css';
 import './styles/base.css';
 import { App } from './app/App';
+import { installGrain } from './lib/cinema/grain';
 
+installGrain();
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />

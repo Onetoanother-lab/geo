@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { setState, useReducedMotion, useStore, cycleMotionPreference } from '../../app/store';
+import { getState, setState, useReducedMotion, useStore, cycleMotionPreference } from '../../app/store';
 import { toggleSound } from '../../app/useAppEffects';
 import { toggleFullscreen } from '../../lib/accessibility/fullscreen';
-import { IconChapters, IconFullscreen, IconMotion, IconMuted, IconSound, IconSources } from './icons';
+import { IconChapters, IconFullscreen, IconMotion, IconMuted, IconSound, IconSources, IconPresenter } from './icons';
+import { MOTION } from '../../lib/animation/motion';
+import { openPresenterWindow } from '../../lib/presenter/channel';
 import './controls.css';
 
 const MOTION_LABEL = { system: 'tizim bo‘yicha', reduced: 'kamaytirilgan', full: 'to‘liq' } as const;
@@ -13,24 +15,46 @@ export function ControlBar() {
   const pref = useStore((s) => s.motionPreference);
   const entered = useStore((s) => s.entered);
   const reduced = useReducedMotion();
+  const cinema = useStore((s) => s.cinemaMode);
+  const overlay = useStore((s) => s.sourcesOpen || s.navOpen);
   const [awake, setAwake] = useState(true);
   const timer = useRef(0);
 
   useEffect(() => {
+    let keyboard = false;
     const wake = () => {
       setAwake(true);
+      document.documentElement.dataset.cinemaIdle = 'false';
       window.clearTimeout(timer.current);
-      timer.current = window.setTimeout(() => setAwake(false), 2600);
+      if (!entered || !cinema || overlay || keyboard) return;
+      timer.current = window.setTimeout(() => {
+        const s = getState();
+        if (keyboard || s.sourcesOpen || s.navOpen || document.activeElement?.matches('button:focus-visible, input:focus-visible, a:focus-visible, [tabindex="0"]:focus-visible')) return;
+        setAwake(false);
+        document.documentElement.dataset.cinemaIdle = 'true';
+      }, MOTION.idle * 1000);
+    };
+    const pointer = () => { keyboard = false; wake(); };
+    const key = () => { keyboard = true; wake(); };
+    const focus = (e: FocusEvent) => {
+      if ((e.target as HTMLElement)?.id === 'experience') return;
+      if ((e.target as HTMLElement)?.matches(':focus-visible')) keyboard = true;
+      wake();
     };
     wake();
-    window.addEventListener('pointermove', wake, { passive: true });
-    window.addEventListener('keydown', wake);
+    window.addEventListener('pointermove', pointer, { passive: true });
+    window.addEventListener('pointerdown', pointer, { passive: true });
+    window.addEventListener('keydown', key);
+    window.addEventListener('focusin', focus);
     return () => {
       window.clearTimeout(timer.current);
-      window.removeEventListener('pointermove', wake);
-      window.removeEventListener('keydown', wake);
+      window.removeEventListener('pointermove', pointer);
+      window.removeEventListener('pointerdown', pointer);
+      window.removeEventListener('keydown', key);
+      window.removeEventListener('focusin', focus);
+      document.documentElement.dataset.cinemaIdle = 'false';
     };
-  }, []);
+  }, [entered, cinema, overlay]);
 
   if (!entered) return null;
 
@@ -58,6 +82,12 @@ export function ControlBar() {
       <button type="button" className="control-btn" onClick={() => void toggleFullscreen()} title="To‘liq ekran (F)">
         <IconFullscreen />
         <span className="control-label">To‘liq ekran</span>
+      </button>
+      <button type="button" className="control-btn" aria-pressed={cinema} onClick={() => setState({ cinemaMode: !cinema })} title="Kino rejimi">
+        <span aria-hidden="true">◧</span><span className="control-label">Kino</span>
+      </button>
+      <button type="button" className="control-btn" onClick={openPresenterWindow} title="Taqdimotchi oynasi (P)">
+        <IconPresenter /><span className="control-label">Taqdimotchi</span>
       </button>
     </nav>
   );

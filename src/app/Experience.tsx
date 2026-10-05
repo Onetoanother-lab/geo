@@ -3,9 +3,11 @@ import { ControlBar } from '../components/controls/ControlBar';
 import { ProgressRail } from '../components/controls/ProgressRail';
 import { ChapterNav } from '../components/controls/ChapterNav';
 import { SourcesDialog } from '../components/controls/SourcesDialog';
-import { PresenterPanel } from '../components/controls/PresenterPanel';
 import { useChapterTracking } from '../hooks/useChapterTracking';
 import { useAppEffects } from './useAppEffects';
+import { useCinemaDirector } from './useCinemaDirector';
+import '../styles/cinema.css';
+import { SceneHandoffs } from '../components/visualizations/SceneHandoffs';
 import { IntroForest } from '../scenes/IntroForest/IntroForest';
 import { LivingForest } from '../scenes/LivingForest/LivingForest';
 import { DeforestationReveal } from '../scenes/DeforestationReveal/DeforestationReveal';
@@ -24,6 +26,7 @@ import '../components/controls/controls.css';
 export function Experience() {
   useChapterTracking();
   useAppEffects();
+  useCinemaDirector();
   return (
     <>
       <EntryGate />
@@ -41,12 +44,11 @@ export function Experience() {
         <FutureSplit />
         <Finale />
       </main>
+      <SceneHandoffs />
       <ControlBar />
       <ProgressRail />
       <ChapterNav />
       <SourcesDialog />
-      <PresenterPanel />
-      <div id="cut-overlay" className="cut-overlay" aria-hidden="true" />
       <div id="live-region" className="visually-hidden" aria-live="polite" />
     </>
   );
