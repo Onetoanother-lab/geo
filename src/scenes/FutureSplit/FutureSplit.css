@@ -178,7 +178,7 @@
   position: absolute;
   inset: 0;
   z-index: var(--z-controls);
-  background: var(--forest-black);
+  background: #253a2b;
   pointer-events: none;
 }
 

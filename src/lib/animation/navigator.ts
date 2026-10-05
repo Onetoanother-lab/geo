@@ -41,20 +41,11 @@ export function scrollToY(y: number, opts: { duration?: number } = {}): void {
   });
 }
 
-/** A cinematic cut for long jumps: fade to black, jump, fade back. */
+/** Explicit chapter navigation cuts directly to the destination composition. */
 export function cutToY(y: number): void {
-  const overlay = document.getElementById('cut-overlay');
   activeTween?.kill();
   targetY = null;
-  if (!overlay || isReducedMotion(getState())) {
-    window.scrollTo({ top: y, behavior: 'auto' });
-    return;
-  }
-  gsap
-    .timeline()
-    .to(overlay, { opacity: 1, duration: 0.35, ease: 'power1.in' })
-    .add(() => window.scrollTo({ top: y, behavior: 'auto' }))
-    .to(overlay, { opacity: 0, duration: 0.7, ease: 'power1.out' }, '+=0.15');
+  window.scrollTo({ top: Math.min(maxScroll(), Math.max(0, y)), behavior: 'auto' });
 }
 
 function travel(y: number): void {

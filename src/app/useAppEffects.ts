@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { chapterById } from './chapters';
 import { closeTopOverlay, getState, isReducedMotion, setState, subscribe, useReducedMotion, useStore } from './store';
 import { installKeyboard } from '../lib/accessibility/keyboard';
 import { toggleFullscreen } from '../lib/accessibility/fullscreen';
@@ -7,7 +6,7 @@ import { goEnd, goHome, goNext, goPrev } from '../lib/animation/navigator';
 import { requestRefresh } from '../lib/animation/refresh';
 import { ScrollTrigger } from '../lib/animation/gsap';
 import { audio } from '../lib/audio/engine';
-import { openChannel } from '../lib/presenter/channel';
+import { openChannel, openPresenterWindow, type PresenterSnapshot } from '../lib/presenter/channel';
 import { announce } from '../lib/accessibility/announce';
 
 /** Turns sound on/off. Safe to call from a key press (a user gesture). */
@@ -16,7 +15,7 @@ export async function setSound(on: boolean): Promise<void> {
   if (on) {
     await audio.init();
     audio.setMuted(false);
-    audio.setBed(chapterById(getState().chapterId).bed);
+    audio.setEcology(getState().simulatorResult?.forestHealth ?? 0.9);
     announce('Ovoz yoqildi');
   } else {
     audio.setMuted(true);
@@ -55,7 +54,7 @@ function useGlobalKeyboard(): void {
           end: goEnd,
           mute: toggleSound,
           fullscreen: () => void toggleFullscreen(),
-          presenter: () => setState((s) => ({ presenterOpen: !s.presenterOpen })),
+          presenter: openPresenterWindow,
           sources: () => setState((s) => ({ sourcesOpen: !s.sourcesOpen, navOpen: false })),
           escape: () => {
             closeTopOverlay();
@@ -72,33 +71,42 @@ function useAudioDirector(): void {
   const chapterId = useStore((s) => s.chapterId);
   const soundOn = useStore((s) => s.soundOn);
   useEffect(() => {
-    if (soundOn) audio.setBed(chapterById(chapterId).bed);
+    if (!soundOn) audio.setMuted(true);
   }, [chapterId, soundOn]);
 }
 
 /** Keeps a separate presenter window in sync and accepts its commands. */
 function usePresenterSync(): void {
   useEffect(() => {
+    const snapshot = (): PresenterSnapshot => {
+      const s = getState();
+      return { type: 'state', chapterId: s.chapterId, progress: s.progress, soundOn: s.soundOn,
+        chapterProgress: s.chapterProgress, currentBeat: s.currentBeat, startedAt: s.presentationStartedAt,
+        resolution: [innerWidth, innerHeight], reduced: isReducedMotion(s) };
+    };
     const ch = openChannel((m) => {
       if (m.type === 'hello') {
-        const s = getState();
-        ch.post({ type: 'state', chapterId: s.chapterId, progress: s.progress, soundOn: s.soundOn });
+        ch.post(snapshot());
       }
+      if (m.type === 'calibrate') document.documentElement.style.setProperty('--projector-lift', String(Math.max(0, Math.min(.14, Number(m.lift) || 0))));
       if (m.type === 'command' && getState().entered) {
-        ({ next: goNext, prev: goPrev, home: goHome, end: goEnd, mute: toggleSound })[m.action]();
+        ({ next: goNext, prev: goPrev, home: goHome, end: goEnd, mute: toggleSound, 'audio-check': () => audio.check() })[m.action]?.();
       }
     });
     let last = '';
     const unsub = subscribe(() => {
       const s = getState();
-      const key = `${s.chapterId}|${Math.round(s.progress * 200)}|${s.soundOn}`;
+      const key = `${s.chapterId}|${Math.round(s.progress * 200)}|${s.soundOn}|${s.currentBeat}|${s.presentationStartedAt}|${isReducedMotion(s)}`;
       if (key === last) return;
       last = key;
-      ch.post({ type: 'state', chapterId: s.chapterId, progress: s.progress, soundOn: s.soundOn });
+      ch.post(snapshot());
     });
+    const resized = () => ch.post(snapshot());
+    window.addEventListener('resize', resized);
     return () => {
       unsub();
       ch.close();
+      window.removeEventListener('resize', resized);
     };
   }, []);
 }

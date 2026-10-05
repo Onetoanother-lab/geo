@@ -16,9 +16,13 @@
   width: 100%;
 }
 .sim-map {
+  position: relative;
   display: grid;
   gap: var(--space-4);
 }
+.sim-water-art rect { fill: color-mix(in oklab, #2f6670 var(--water-quality, 80%), #907447); }
+.sim-water-art path { opacity: var(--canopy-health, .7); }
+.sim-cell[data-type='forest'] svg { filter: drop-shadow(0 2px 3px #06130b); }
 .sim-grid {
   display: grid;
   gap: 3px;
@@ -225,9 +229,22 @@
 }
 .sim-disclaimer {
   font-size: var(--fs-micro);
-  color: var(--text-faint);
+  color: #c1bda9;
   padding-left: var(--space-3);
   border-left: 1px solid var(--ochre);
+}
+
+@media (min-width: 901px) and (max-height: 900px) {
+  .sim-stage { padding-top: 4.3rem; padding-bottom: 1.5rem; }
+  .sim-grid { width: min(100%, calc((100vh - 20rem) * 10 / 7)); }
+  .sim-panel { gap: .6rem; }
+  .sim-title { font-size: 2.2rem; }
+  .sim-intro { display: none; }
+  .sim-tool { padding: .5rem .7rem; }
+  .sim-hint { font-size: .9rem; }
+  .sim-tradeoff { margin-block: .25rem; }
+  .sim-indicators { gap: .4rem; }
+  .sim-log { min-height: 2.8em; font-size: .8rem; }
 }
 
 @media (max-width: 900px) {
@@ -241,3 +258,6 @@
     grid-template-columns: 9rem 1fr;
   }
 }
+.sim-tradeoff { font-size: var(--fs-micro); color: var(--text-muted); border-left: 1px solid #c2b78e70; padding-left: .7rem; margin-block: .7rem; }
+.sim-tradeoff .label { color: var(--sunlight-soft); margin-right: .5rem; }
+.sim-cell[data-type='managed'], .sim-legend-swatch[data-type='managed'] { background: #4b6040; }

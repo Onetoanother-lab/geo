@@ -4,9 +4,11 @@ import { Narration } from '../../components/layout/Narration';
 import { ForestScene, HERO } from '../../components/visualizations/forest/ForestScene';
 import { useSceneTimeline } from '../../lib/animation/useSceneTimeline';
 import { gsap, useGSAP } from '../../lib/animation/gsap';
-import { useStore } from '../../app/store';
+import { getState, useReducedMotion, useStore } from '../../app/store';
 import { audio } from '../../lib/audio/engine';
 import { NARRATIVE } from '../../content/narrative';
+import { FALL, MOTION } from '../../lib/animation/motion';
+import { announce } from '../../lib/accessibility/announce';
 import './IntroForest.css';
 
 const T = NARRATIVE.intro;
@@ -29,29 +31,30 @@ export function IntroForest() {
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const entered = useStore((s) => s.entered);
+  const reducedMotion = useReducedMotion();
 
   // Time-based dawn once the gate opens (independent from scroll).
   useGSAP(
     () => {
       if (!entered) return;
-      gsap.fromTo('.intro-dawn', { opacity: 1 }, { opacity: 0, duration: 3.2, ease: 'power2.inOut', delay: 0.4 });
-      gsap.fromTo('.intro-once-wrap', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 2.4, ease: 'power2.out', delay: 1.9 });
-      gsap.fromTo('.intro-hint', { opacity: 0 }, { opacity: 1, duration: 1.2, delay: 4.2 });
+      gsap.fromTo('.intro-dawn', { opacity: 1 }, { opacity: 0, duration: reducedMotion ? MOTION.reduced : MOTION.transformation, ease: 'power2.inOut', delay: 0.4 });
+      gsap.fromTo('.intro-once-wrap', { opacity: 0, y: reducedMotion ? 0 : 12 }, { opacity: 1, y: 0, duration: reducedMotion ? MOTION.reduced : MOTION.text, ease: 'power2.out', delay: 1.9 });
+      gsap.fromTo('.intro-hint-reveal', { opacity: 0 }, { opacity: 1, duration: 1.2, delay: 4.2 });
     },
-    { scope: sectionRef, dependencies: [entered] },
+    { scope: sectionRef, dependencies: [entered, reducedMotion], revertOnUpdate: true },
   );
 
   useSceneTimeline(sectionRef, stageRef, {
     chapter: 'intro',
     length: 5.2,
-    build: (tl, { reduced, q }) => {
+    build: (tl, { reduced, q, stage }) => {
       const forest = q('.forest-scene')[0];
       const [d0, d1, d2, d3] = [0, 1, 2, 3].map((i) => q(`.fs-depth[data-depth="${i}"]`)[0]);
       const heroTree = q('.fs-hero-tree')[0];
       const stump = q('.fs-hero-stump')[0];
 
       tl.addLabel('beat:start', 0);
-      tl.to('.intro-hint', { opacity: 0, duration: 4 }, 1);
+      tl.fromTo('.intro-hint', { opacity: 1 }, { opacity: 0, duration: 4 }, 1);
       tl.to('.intro-once', { opacity: 0, y: reduced ? 0 : -20, duration: 6 }, 12);
 
       // Walking in: each depth plane grows at its own rate.
@@ -67,50 +70,114 @@ export function IntroForest() {
         .addLabel('beat:system', 31)
         .to(['.intro-notonly', '.intro-alive'], { opacity: 0, duration: 4 }, 38);
 
-      // Hush: the birds leave first.
-      q<SVGGElement>('.intro-bird').forEach((b, i) => {
-        tl.to(b, reduced ? { opacity: 0, duration: 2 } : { x: -260 - i * 90, y: -340 - i * 40, opacity: 0, duration: 7, ease: 'power1.in' }, 41 + i * 0.6);
-      });
-
-      // The fall.
-      tl.call(
-        () => {
-          if (tl.scrollTrigger?.direction === 1) audio.cue('treefall');
-        },
-        [],
-        45.5,
-      );
-      tl.addLabel('beat:fall', 47);
-      if (reduced) {
-        tl.to(heroTree, { opacity: 0, duration: 4 }, 47).to(stump, { opacity: 1, duration: 3 }, 48);
-      } else {
-        tl.to(heroTree, { rotation: -3, svgOrigin: `${HERO.x} ${HERO.y}`, duration: 3, ease: 'power1.inOut' }, 45)
-          .to(heroTree, { rotation: -86, svgOrigin: `${HERO.x} ${HERO.y}`, duration: 7, ease: 'power3.in' }, 48)
-          .set(stump, { opacity: 1 }, 50)
-          .to(heroTree, { opacity: 0, duration: 4 }, 56)
-          .fromTo('.intro-impact', { opacity: 0, scale: 0.4 }, { opacity: 0.85, scale: 1, duration: 2, ease: 'power2.out' }, 55)
-          .to('.intro-impact', { opacity: 0, scale: 1.5, duration: 9 }, 57)
-          .to(forest, { keyframes: { y: [0, 6, -4, 3, 0] }, duration: 2 }, 55);
-      }
-
-      // The forest loses some of its colour and softness.
-      tl.to(forest, { '--life': 0.6, duration: 16 }, 56)
-        .fromTo('.intro-gap', { opacity: 0 }, { opacity: 1, duration: 10 }, 56)
-        .fromTo('.intro-notjust', { opacity: 0, y: reduced ? 0 : 20 }, { opacity: 1, y: 0, duration: 5 }, 63)
+      // The audience reveals the connections before a single thread breaks.
+      tl.to('.fs-roots', { opacity: 0.52, duration: 9 }, 23)
+        .to('.fs-root-connection', { opacity: 0, duration: 2 }, 39)
+        .addLabel('beat:hush', 41)
+        .addLabel('beat:fall', 50)
         .addLabel('beat:loss', 69)
-        .to('.intro-notjust', { opacity: 0, duration: 4 }, 75)
-        .fromTo('.intro-systemline', { opacity: 0, y: reduced ? 0 : 20 }, { opacity: 1, y: 0, duration: 5 }, 79)
         .addLabel('beat:change', 86);
 
-      // Lower the camera into the fog → Act II.
-      if (!reduced) tl.to([d0, d1, d2, d3], { yPercent: '-=10', duration: 18, ease: 'power1.in' }, 82);
-      tl.to('.intro-fogout', { opacity: 1, duration: 10 }, 89).to('.intro-systemline', { opacity: 0, duration: 4 }, 95);
+      let status: 'idle' | 'running' | 'complete' = 'idle';
+      const condition = { health: .96, hush: 1 };
+      const mark = (beat: string) => { stage.dataset.beat = beat; };
+      const duration = reduced ? MOTION.reduced : MOTION.text;
+      let statementTimers: number[] = [];
+      let statementTweens: gsap.core.Tween[] = [];
+      const clearStatements = () => {
+        statementTimers.forEach(window.clearTimeout);
+        statementTweens.forEach((tween) => tween.kill());
+        statementTimers = []; statementTweens = [];
+      };
+      const textTo = (selector: string, visible: boolean) => {
+        statementTweens.push(gsap.to(q(selector), { autoAlpha: visible ? 1 : 0, duration }));
+      };
+      const scheduleStatements = () => {
+        // This hold is real elapsed time after the actual impact callback. GSAP's
+        // lag smoothing must not stretch silence when a projector drops frames.
+        const after = (seconds: number, callback: () => void) => {
+          statementTimers.push(window.setTimeout(() => {
+            if (tl.scrollTrigger?.isActive && status !== 'idle') callback();
+          }, seconds * 1000));
+        };
+        after(FALL.firstLine - FALL.impact, () => {
+          announce(T.notJust); mark(T.notJust); stage.dataset.fall = 'first-line';
+          stage.dataset.firstLineAt = String(performance.now()); textTo('.intro-notjust', true);
+        });
+        after(FALL.secondLine - FALL.impact - duration, () => textTo('.intro-notjust', false));
+        after(FALL.secondLine - FALL.impact, () => {
+          announce(T.system); mark(T.system); stage.dataset.fall = 'second-line';
+          textTo('.intro-systemline', true);
+          statementTweens.push(gsap.to(q('.fs-roots'), { opacity: .44, duration: MOTION.environment }));
+        });
+      };
+      gsap.set(q('.intro-notjust, .intro-systemline'), { autoAlpha: 0 });
+      const fall = gsap.timeline({ paused: true, onUpdate: () => {
+        stage.dataset.health = String(condition.health);
+        stage.dataset.hush = String(condition.hush);
+      }, onComplete: () => { status = 'complete'; stage.dataset.fall = 'complete'; } });
+      fall.call(() => { mark('O‘rmon jimiydi'); stage.dataset.fall = 'hush'; }, [], 0)
+        .to(q('.intro-bird'), { opacity: 0, x: reduced ? 0 : -180, y: reduced ? 0 : -95, stagger: .14, duration: reduced ? .2 : 1.4 }, FALL.birds)
+        .to(condition, { health: .22, duration: 1.4 }, FALL.birds)
+        .to(condition, { hush: .035, duration: .8 }, FALL.wind)
+        .call(() => audio.cue('creak'), [], FALL.creak)
+        .call(() => audio.cue('creak'), [], FALL.secondCreak)
+        .call(() => { mark('Daraxt qulaydi'); stage.dataset.fall = 'falling'; }, [], FALL.movement);
+      if (reduced) {
+        fall.to(heroTree, { opacity: 0, duration: .2 }, FALL.impact - .2)
+          .to(stump, { opacity: 1, duration: .2 }, FALL.impact);
+      } else {
+        fall.to(heroTree, { rotation: -2, svgOrigin: `${HERO.x} ${HERO.y}`, duration: .6, ease: 'sine.inOut' }, FALL.movement)
+          .to(heroTree, { rotation: -86, svgOrigin: `${HERO.x} ${HERO.y}`, duration: 1.1, ease: 'power3.in' }, FALL.movement + .6)
+          .set(stump, { opacity: 1 }, FALL.impact)
+          .to(heroTree, { opacity: 0, duration: .45 }, FALL.impact + .2)
+          .to(forest, { keyframes: { y: [0, 3, -2, 0] }, duration: .32 }, FALL.impact)
+          .fromTo('.intro-impact', { opacity: 0, scale: .65 }, { opacity: .6, scale: 1, duration: .45, ease: 'power2.out' }, FALL.impact)
+          .to('.intro-impact', { opacity: 0, scale: 1.3, duration: 1.5 }, FALL.impact + .45);
+      }
+      fall.call(() => { audio.cue('impact'); mark('Sukut'); stage.dataset.fall = 'impact'; stage.dataset.impactAt = String(performance.now()); scheduleStatements(); }, [], FALL.impact)
+        .to(forest, { '--life': .58, duration: MOTION.environment }, FALL.impact)
+        .to('.intro-gap', { opacity: .7, duration: MOTION.environment }, FALL.impact)
+        .to('.intro-stump-rings', { opacity: .65, duration: duration }, FALL.impact + 1)
+        .to(condition, { health: .58, hush: .3, duration: MOTION.environment }, FALL.secondLine + .4)
+        .set({}, {}, FALL.complete);
+
+      tl.eventCallback('onUpdate', () => {
+        if (!getState().entered) return;
+        const time = tl.time();
+        if (time < 38 && status !== 'idle') {
+          clearStatements();
+          gsap.set(q('.intro-notjust, .intro-systemline'), { autoAlpha: 0 });
+          fall.pause(0, true);
+          status = 'idle';
+          delete stage.dataset.beat;
+          stage.dataset.fall = 'idle';
+          delete stage.dataset.impactAt; delete stage.dataset.firstLineAt;
+          stage.dataset.health = '.96'; stage.dataset.hush = '1';
+        } else if (time >= 40 && tl.scrollTrigger?.isActive && status === 'idle') {
+          status = 'running'; fall.restart();
+        } else if (!tl.scrollTrigger?.isActive && status === 'running') {
+          // Fast navigation is always allowed. Settle without replaying cues offscreen.
+          clearStatements();
+          gsap.set(q('.intro-notjust'), { autoAlpha: 0 });
+          gsap.set(q('.intro-systemline'), { autoAlpha: 1 });
+          fall.progress(1, true).pause(); status = 'complete';
+          stage.dataset.fall = 'complete';
+          stage.dataset.health = '.58'; stage.dataset.hush = '.3'; mark(T.system);
+        }
+      });
+      return () => {
+        clearStatements();
+        fall.kill();
+        delete stage.dataset.health; delete stage.dataset.hush; delete stage.dataset.beat;
+        delete stage.dataset.fall; delete stage.dataset.impactAt; delete stage.dataset.firstLineAt;
+      };
     },
   });
 
   return (
     <Scene chapter="intro" sectionRef={sectionRef} stageRef={stageRef}>
-      <ForestScene hero seed={11} label={T.srTree}>
+      <ForestScene hero inscription seed={11} label={T.srTree}>
         <svg className="intro-overlay" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
           <defs>
             <radialGradient id="intro-impact-g">
@@ -118,6 +185,9 @@ export function IntroForest() {
               <stop offset="1" stopColor="#c9b08a" stopOpacity="0" />
             </radialGradient>
           </defs>
+          <g className="intro-stump-rings" fill="none" stroke="#c6b78d" strokeWidth="1.5">
+            {[14, 25, 37, 50].map((r) => <ellipse key={r} cx={HERO.x} cy={HERO.y - 7} rx={r} ry={r * .3} />)}
+          </g>
           {BIRDS.map((b, i) => (
             <g key={i} className="intro-bird" transform={`translate(${b.x} ${b.y}) scale(${b.s})`}>
               <path d="M-9,0 Q-4,-6 0,0 Q4,-6 9,0" fill="none" stroke="#07130f" strokeWidth="2.4" strokeLinecap="round" />
@@ -149,8 +219,10 @@ export function IntroForest() {
         {T.system}
       </Narration>
       <div className="intro-hint" aria-hidden="true">
-        <span className="label">aylantiring</span>
-        <span className="intro-hint-line" />
+        <div className="intro-hint-reveal">
+          <span className="label">aylantiring</span>
+          <span className="intro-hint-line" />
+        </div>
       </div>
     </Scene>
   );

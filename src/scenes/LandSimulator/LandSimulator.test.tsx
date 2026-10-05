@@ -1,9 +1,16 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { LandSimulator } from './LandSimulator';
 import { NARRATIVE } from '../../content/narrative';
+import { setState } from '../../app/store';
 
 const T = NARRATIVE.simulator;
+beforeEach(() => {
+  sessionStorage.clear();
+  // jsdom has no layout clock. Real animated keyboard focus is covered in e2e.
+  setState({ motionPreference: 'reduced' });
+});
+afterEach(() => setState({ motionPreference: 'system' }));
 
 describe('LandSimulator', () => {
   it('applies the chosen tool to a tile and explains the consequence', async () => {

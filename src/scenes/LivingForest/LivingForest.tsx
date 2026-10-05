@@ -23,11 +23,10 @@ export function LivingForest() {
   useSceneTimeline(sectionRef, stageRef, {
     chapter: 'system',
     length: 2.6,
-    build: (tl, { reduced }) => {
+    build: (tl, { reduced, narrate }) => {
+      narrate('.ls-title', 12);
       tl.addLabel('beat:arrive', 0)
         .fromTo('.ls-fog', { opacity: 1 }, { opacity: 0, duration: 16 }, 0)
-        .fromTo('.ls-underground-mask', { scaleY: 1 }, { scaleY: 0, duration: 18, ease: 'power2.inOut' }, 6)
-        .fromTo('.ls-title', { opacity: 0, y: reduced ? 0 : 16 }, { opacity: 1, y: 0, duration: 6 }, 12)
         .fromTo('.ls-hotspot', { opacity: 0 }, { opacity: 1, duration: 4, stagger: 1.2 }, 20)
         .fromTo('.ls-all', { opacity: 0 }, { opacity: 1, duration: 4 }, 24)
         .addLabel('beat:explore', 30)
@@ -35,7 +34,9 @@ export function LivingForest() {
         .fromTo('.ls-eq-before', { '--strike': 0 }, { '--strike': 1, duration: 6 }, 70)
         .fromTo('.ls-eq-after', { opacity: 0, y: reduced ? 0 : 10 }, { opacity: 1, y: 0, duration: 6 }, 76)
         .addLabel('beat:system', 84);
-      if (!reduced) tl.fromTo('.diorama', { scale: 1.08 }, { scale: 1, duration: 30, ease: 'power2.out' }, 0);
+      if (reduced) tl.fromTo('.ls-underground-mask', { opacity: 1 }, { opacity: 0, duration: 4 }, 6);
+      else tl.fromTo('.ls-underground-mask', { scaleY: 1 }, { scaleY: 0, duration: 18, ease: 'power2.inOut' }, 6)
+        .fromTo('.diorama', { scale: 1.08 }, { scale: 1, duration: 30, ease: 'power2.out' }, 0);
     },
   });
 

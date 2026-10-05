@@ -1,39 +1,52 @@
 import { useRef } from 'react';
 import { Scene } from '../../components/layout/Scene';
 import { ForestScene } from '../../components/visualizations/forest/ForestScene';
-import { SourcesList } from '../../components/controls/SourcesList';
+import { gsap, useGSAP } from '../../lib/animation/gsap';
+import { MOTION } from '../../lib/animation/motion';
+import { sceneHealth } from '../../lib/cinema/ecology';
+import { announce } from '../../lib/accessibility/announce';
 import { useSceneTimeline } from '../../lib/animation/useSceneTimeline';
-import { goHome } from '../../lib/animation/navigator';
-import { setState } from '../../app/store';
+
+import { setState, useStore, useReducedMotion } from '../../app/store';
 import { NARRATIVE } from '../../content/narrative';
 import './Finale.css';
 
 const T = NARRATIVE.finale;
 
 /**
- * ACT XII — reflection. The opening forest returns (same seed), the first line
- * is rewritten, practical responses, then the full source list.
+ * ACT XII — reflection. The opening composition returns with the audience's
+ * remembered choices. Two quiet lines settle over a living forest.
  */
 export function Finale() {
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
 
+  const active = useStore((s) => s.chapterId === 'finale');
+  const balance = useStore((s) => s.futureBalance);
+  const result = useStore((s) => s.simulatorResult);
+  const reduced = useReducedMotion();
+  const health = sceneHealth('finale', 1, result, balance);
   useSceneTimeline(sectionRef, stageRef, {
-    chapter: 'finale',
-    length: 2.2,
-    scrub: 1,
-    build: (tl, { reduced }) => {
-      tl.addLabel('beat:echo', 6)
-        .fromTo('.fi-forest', { opacity: 0 }, { opacity: 1, duration: 8 }, 0)
-        .fromTo('.fi-before', { opacity: 0 }, { opacity: 1, duration: 8 }, 4)
-        .fromTo('.fi-before', { '--strike': 0 }, { '--strike': 1, duration: 10 }, 26)
-        .to('.fi-before', { opacity: 0.35, duration: 8 }, 34)
-        .fromTo('.fi-after', { opacity: 0, y: reduced ? 0 : 16 }, { opacity: 1, y: 0, duration: 10 }, 44)
-        .addLabel('beat:after', 56)
-        .fromTo('.fi-thanks', { opacity: 0 }, { opacity: 1, duration: 8 }, 72)
-        .addLabel('beat:thanks', 84);
-    },
+    chapter: 'finale', length: 1.3,
+    build: (tl) => { tl.addLabel('beat:echo', 0).addLabel('beat:reflection', 65); },
   });
+  useGSAP(() => {
+    const stage = stageRef.current;
+    if (!active || !stage) return;
+    const duration = reduced ? MOTION.reduced : MOTION.text;
+    stage.dataset.hush = '1';
+    stage.dataset.settled = 'false';
+    stage.dataset.beat = 'Qaytish';
+    const tl = gsap.timeline();
+    tl.set('.fi-before, .fi-after', { autoAlpha: 0 })
+      .to('.fi-forest .forest-scene', { '--life': health, duration: reduced ? MOTION.reduced : MOTION.environment }, 0)
+      .call(() => { stage.dataset.hush = '0'; stage.dataset.settled = 'true'; }, [], MOTION.idle)
+      .to('.fi-before', { autoAlpha: 1, duration }, MOTION.idle + MOTION.hold)
+      .call(() => announce(T.echoBefore), [], MOTION.idle + MOTION.hold)
+      .to('.fi-after', { autoAlpha: 1, duration }, MOTION.idle + MOTION.hold * 2 + MOTION.text)
+      .call(() => { announce(T.echoAfter); stage.dataset.hush = '1'; stage.dataset.beat = 'Uni biz yozamiz'; }, [], MOTION.idle + MOTION.hold * 2 + MOTION.text + duration);
+    return () => { delete stage.dataset.hush; delete stage.dataset.settled; delete stage.dataset.beat; };
+  }, { scope: sectionRef, dependencies: [active, balance, reduced, health], revertOnUpdate: true });
 
   return (
     <Scene
@@ -41,48 +54,20 @@ export function Finale() {
       sectionRef={sectionRef}
       stageRef={stageRef}
       stageClassName="fi-stage"
-      after={
-        <div className="fi-after-content">
-          <section className="fi-actions" aria-labelledby="fi-actions-title">
-            <h3 id="fi-actions-title" className="title">
-              {T.actionsTitle}
-            </h3>
-            <ol>
-              {T.actions.map((a, i) => (
-                <li key={a}>
-                  <span className="fi-num" aria-hidden="true">
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
-                  <p>{a}</p>
-                </li>
-              ))}
-            </ol>
-          </section>
-          <section className="fi-sources" aria-labelledby="fi-sources-title">
-            <h3 id="fi-sources-title" className="title">
-              {T.sources}
-            </h3>
-            <SourcesList />
-            <div className="fi-buttons">
-              <button type="button" className="pill-button" onClick={() => setState({ sourcesOpen: true })}>
-                {T.sources}
-              </button>
-              <button type="button" className="pill-button" onClick={goHome}>
-                {T.restart}
-              </button>
-            </div>
-            <p className="fi-credits">{T.credits}</p>
-          </section>
-        </div>
-      }
+
     >
       <div className="fi-forest">
-        <ForestScene seed={11} life={0.95} />
+        <ForestScene hero inscription seed={11} life={health} style={{ ['--final-life' as string]: health }} />
       </div>
       <div className="fi-lines">
         <p className="fi-before display">{T.echoBefore}</p>
         <p className="fi-after display">{T.echoAfter}</p>
-        <p className="fi-thanks label">{T.thanks}</p>
+
+      </div>
+      <div className="fi-compare" data-local-keys>
+        <label htmlFor="fi-choice">{NARRATIVE.futures.seam}</label>
+        <input id="fi-choice" type="range" min="0" max="100" value={Math.round(balance * 100)} onChange={(e) => setState({ futureBalance: Number(e.target.value) / 100 })} aria-valuetext={balance < .5 ? NARRATIVE.futures.aLabel : NARRATIVE.futures.bLabel} />
+        <p>{NARRATIVE.futures.disclaimer}</p>
       </div>
     </Scene>
   );

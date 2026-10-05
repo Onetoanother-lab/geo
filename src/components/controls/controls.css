@@ -317,6 +317,11 @@
   font-size: var(--fs-small);
   color: var(--text-muted);
 }
+.sources-credits {
+  margin-top: var(--space-5);
+  font-size: var(--fs-micro);
+  color: var(--text-faint);
+}
 .research-gaps summary {
   cursor: pointer;
   font-family: var(--font-mono);
@@ -325,60 +330,4 @@
 }
 .research-gaps li {
   margin-top: var(--space-2);
-}
-
-/* — Presenter panel — */
-.presenter-panel {
-  position: fixed;
-  left: clamp(0.6rem, 1.4vw, 1.2rem);
-  bottom: clamp(0.6rem, 1.4vw, 1.2rem);
-  z-index: var(--z-overlay);
-  width: min(26rem, calc(100vw - 2rem));
-  max-height: 60vh;
-  overflow: auto;
-  padding: var(--space-4) var(--space-5) var(--space-5);
-  border: var(--rule);
-  border-radius: var(--radius-soft);
-  background: rgb(6 12 10 / 94%);
-  font-size: var(--fs-small);
-  display: grid;
-  gap: var(--space-3);
-}
-.presenter-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.presenter-actions {
-  display: flex;
-}
-.presenter-title {
-  font-family: var(--font-display);
-  font-size: var(--fs-lead);
-}
-.presenter-notes {
-  margin: 0;
-  padding-left: 1.1em;
-  color: var(--text-muted);
-  display: grid;
-  gap: var(--space-2);
-}
-.presenter-sources,
-.presenter-next {
-  font-family: var(--font-mono);
-  font-size: var(--fs-micro);
-  color: var(--text-faint);
-}
-.presenter-next {
-  color: var(--sunlight-soft);
-}
-
-/* — Cut overlay & live region — */
-.cut-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-overlay);
-  background: var(--forest-black);
-  opacity: 0;
-  pointer-events: none;
 }

@@ -87,6 +87,7 @@ export const Landscape = memo(function Landscape({ trees }: { trees: LandscapeTr
       <path d={static_.far} className="dr-far-forest" />
       <path d={static_.nearGround} className="dr-ground" />
       <path d={static_.river} className="dr-river" />
+      <path d="M892,510l12,1M945,612l22,2M916,735l38,3M1110,845l46,2" className="dr-watershine" />
       <path d={static_.river} className="dr-plume" fill="url(#dr-plume)" />
       <g className="dr-gullies">
         {static_.gullies.map((d, i) => (
@@ -101,6 +102,7 @@ export const Landscape = memo(function Landscape({ trees }: { trees: LandscapeTr
       <g className="dr-trees">
         {trees.map((t) => (
           <g key={t.id} className="dr-tree" data-id={t.id} transform={`translate(${t.x.toFixed(1)} ${t.y.toFixed(1)})`}>
+            <ellipse className="dr-shadow" cx={-t.h * .2} cy="6" rx={t.h * .32} ry={t.h * .06} />
             <ellipse className="dr-soil" cx={t.h * t.soilDx} cy="2" rx={t.h * t.soilW} ry={t.h * 0.06} />
             <path className="dr-stump" d={t.stump} />
             <g className="dr-crown">

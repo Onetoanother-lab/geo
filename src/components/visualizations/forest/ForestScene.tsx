@@ -1,6 +1,8 @@
 import { useId, useMemo, type ReactNode, type CSSProperties } from 'react';
 import { broadleafPath, generateLayer, mergeLayer, mulberry32, ridgePath, stumpPath, translatePath, range } from '../../../lib/forest/generate';
 import { DustField } from './DustField';
+import { rootSystem } from '../../../lib/forest/roots';
+import { DEER, butterfly } from '../silhouettes';
 import './ForestScene.css';
 
 export const HERO = { x: 1010, y: 805, h: 610, w: 330 } as const;
@@ -19,6 +21,7 @@ type Props = {
   style?: CSSProperties;
   children?: ReactNode;
   label?: string;
+  inscription?: boolean;
 };
 
 function frontTrunks(seed: number): string {
@@ -62,7 +65,8 @@ function undergrowth(seed: number, baseY: number, count: number): string {
  * inner SVGs carry the gentle canopy sway (CSS), so GSAP and CSS never fight
  * over the same transform.
  */
-export function ForestScene({ seed = 11, life = 1, hero = false, dust = true, dustColor, density = 1, className, style, children, label }: Props) {
+export function ForestScene({ seed = 11, life = 1, hero = false, dust = true, dustColor, density = 1, className, style, children, label, inscription = false }: Props) {
+  const roots = useMemo(() => rootSystem(HERO.x, HERO.y, 91, { length: 145, depth: 3, spread: 1.15 }), []);
   const layers = useMemo(() => {
     const gap: [number, number][] | undefined = hero ? [[HERO.x - 150, HERO.x + 150]] : undefined;
     const far = generateLayer({ seed: seed + 1, count: Math.round(78 * density), baseY: 548, baseJitter: 34, minH: 50, maxH: 120, mix: { conifer: 0.8, broadleaf: 0.2 } });
@@ -141,6 +145,18 @@ export function ForestScene({ seed = 11, life = 1, hero = false, dust = true, du
         )}
       </div>
       <div className="fs-mist fs-mist--ground" />
+      <svg {...svgProps} className="fs-water">
+        <path className="fs-water-body" d="M770,620Q715,672 827,720T860,790Q760,842 950,900H1180Q860,837 973,796T860,710Q754,674 795,620Z" />
+        <path className="fs-water-line" d="M816,715l30,1M857,745l26,2M849,828l63,3M1018,885l70,2" />
+      </svg>
+      <svg {...svgProps} className="fs-ecology">
+        <path d={DEER} transform="translate(650 755) scale(.8)" />
+        <path d={butterfly(800, 770, 1.2) + butterfly(1220, 730, .9)} />
+      </svg>
+      {inscription && <p className="fs-inscription" aria-hidden="true">O‘RMON</p>}
+      <svg {...svgProps} className="fs-roots">
+        {roots.segments.map((s, i) => <path className={i === 1 ? 'fs-root-connection' : undefined} key={i} d={s.d} />)}
+      </svg>
       <div className="fs-depth" data-depth="3">
         <svg {...svgProps} className="fs-svg">
           <path d={layers.front} className="fs-fill-front" />

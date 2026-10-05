@@ -92,8 +92,8 @@ describe('Uzbek copy conventions', () => {
   it('includes the required lines from the brief verbatim', () => {
     expect(NARRATIVE.intro.once).toBe('Bir paytlar bu yerda o‘rmon bor edi.');
     expect(NARRATIVE.intro.notOnly).toBe('O‘rmon faqat daraxtlardan iborat emas.');
-    expect(NARRATIVE.intro.notJust).toBe('Bu faqat daraxtning yo‘qolishi emas.');
-    expect(NARRATIVE.intro.system).toBe('Bu butun tizimning o‘zgarishi.');
+    expect(NARRATIVE.intro.notJust).toBe('Bir daraxt yo‘qoldi.');
+    expect(NARRATIVE.intro.system).toBe('Lekin u yolg‘iz emas edi.');
     expect(NARRATIVE.futures.end1).toBe('O‘rmon kelajagi o‘z-o‘zidan hal bo‘lmaydi.');
     expect(NARRATIVE.futures.end2).toBe('Uni qanday qoldirishimiz bugungi qarorlarimizga bog‘liq.');
     expect(NARRATIVE.simulator.disclaimer).toBe('Bu ilmiy model emas. Bu ekologik bog‘liqliklarni soddalashtirib ko‘rsatadigan interaktiv model.');

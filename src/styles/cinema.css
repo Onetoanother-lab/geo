@@ -1,0 +1,87 @@
+/* The color script: darkness and warmth follow the story, never a brand accent. */
+:root {
+  --mystery-ink: #07100c; --mystery-mid: #102019; --mystery-light: #9aa98f;
+  --living-ink: #092419; --living-mid: #174d32; --living-light: #b9c982;
+  --sunlight-ink: #d8c98c; --sunlight-mid: #f0e0ae; --sunlight-light: #fff2c6;
+  --warning-ink: #31402d; --warning-mid: #766440; --warning-light: #c69150;
+  --destruction-ink: #302c27; --destruction-mid: #57493a; --destruction-light: #a85f3d;
+  --consequence-ink: #252726; --consequence-mid: #555b57; --consequence-light: #a2aaa5;
+  --global-ink: #071218; --global-mid: #11302c; --global-light: #80b9a4;
+  --aral-ink: #d4c3a2; --aral-mid: #a58964; --aral-light: #827469;
+  --recovery-ink: #17251b; --recovery-mid: #385b38; --recovery-light: #8ca96d;
+  --dur-instant: 180ms; --dur-quick: 360ms; --dur-medium: 600ms;
+  --dur-slow: 1200ms; --dur-cinematic: 1900ms; --dur-hold: 1800ms;
+  --projector-lift: 0;
+}
+[data-color='mystery'] { --score-ink: var(--mystery-ink); --score-light: var(--mystery-light); }
+[data-color='living'] { --score-ink: var(--living-ink); --score-light: var(--living-light); }
+[data-color='warning'] { --score-ink: var(--warning-ink); --score-light: var(--warning-light); }
+[data-color='destruction'] { --score-ink: var(--destruction-ink); --score-light: var(--destruction-light); }
+[data-color='consequence'] { --score-ink: var(--consequence-ink); --score-light: var(--consequence-light); }
+[data-color='global'] { --score-ink: var(--global-ink); --score-light: var(--global-light); }
+[data-color='aral'] { --score-ink: var(--aral-ink); --score-light: var(--aral-light); }
+[data-color='recovery'] { --score-ink: var(--recovery-ink); --score-light: var(--recovery-light); }
+/* Defaults until the director writes values onto the elements that use them. */
+.stage { --ecology: .7; --shade: .7; --exposure: .3; --saturation: .8; --pulse: 0; }
+.scene-light { position: absolute; inset: 0; pointer-events: none; z-index: 6; }
+.scene-light > span { position: absolute; inset: 0; }
+.scene-light-shade {
+  background: linear-gradient(115deg, transparent 32%, rgb(3 12 8 / 18%) 54%, transparent 61%), radial-gradient(ellipse at 46% 25%, transparent 35%, rgb(3 10 7 / 32%));
+  opacity: var(--shade);
+}
+.scene-light-exposure {
+  background: linear-gradient(180deg, color-mix(in oklab, var(--score-light, #f6e5bf) 18%, transparent), transparent 65%);
+  opacity: var(--exposure);
+}
+.scene-light::after { content: ''; position: absolute; inset: 0; background: #c1c8af; opacity: var(--projector-lift); }
+.scene--aral .scene-light-shade { opacity: 0; }
+.scene--aral .scene-light-exposure { background: linear-gradient(#f2e7cf26, transparent 70%); }
+.forest-scene, .dr-scene, .rc-scene {
+  --life-pct: calc(var(--life) * 100%);
+  --sky-top: color-mix(in oklab, #102d2b var(--life-pct), #8d8676);
+  --sky-bottom: color-mix(in oklab, #426b5e var(--life-pct), #d9c7a2);
+  --tree-far: color-mix(in oklab, #375b4d var(--life-pct), #8f8678);
+  --tree-mid: color-mix(in oklab, #234333 var(--life-pct), #6d6457);
+  --tree-near: color-mix(in oklab, #122e22 var(--life-pct), #4b4339);
+  --tree-front: color-mix(in oklab, #091a13 var(--life-pct), #2c2620);
+  --canopy-light: color-mix(in oklab, #718056 var(--life-pct), #9d8c6c);
+  --ground: color-mix(in oklab, #223523 var(--life-pct), #8a6c4a);
+  --ground-far: color-mix(in oklab, #304932 var(--life-pct), #a88d68);
+  --river: color-mix(in oklab, #567d7c var(--life-pct), #8b6a45);
+  --mist-opacity: calc(.15 + var(--life) * .45);
+  --light-warmth: color-mix(in oklab, #f0cf86 var(--life-pct), #f4f1ea);
+  filter: saturate(var(--saturation));
+}
+.fs-vignette { opacity: calc(.25 + var(--life) * .65); }
+.fs-shaft { animation: none; opacity: calc(.3 + var(--pulse) * .065); }
+.fs-sway { animation: none; }
+.fs-water, .fs-roots, .fs-ecology, .fs-occlusion { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.fs-water-body { fill: var(--river); opacity: calc(.3 + var(--life) * .45); }
+.fs-water-line { fill: none; stroke: #d4d8b1; stroke-width: 1.4; opacity: calc(var(--life) * (.2 + var(--pulse) * .04)); }
+.fs-roots { z-index: 2; fill: none; stroke: var(--sunlight-soft); stroke-width: 1.5; opacity: calc(var(--life) * (.12 + var(--pulse) * .035)); }
+.fs-ecology { fill: #121f16; opacity: var(--life); }
+.fs-inscription { position: absolute; top: 34%; left: 19%; font: 300 clamp(4rem, 15vw, 16rem)/1 var(--font-display); letter-spacing: .1em; color: #d1d7b1; opacity: .1; }
+.fs-occlusion { z-index: 2; fill: var(--tree-front); }
+.scene:not([data-current='true']) *, .stage[data-quiet='true'] * { animation-play-state: paused !important; }
+.stage[data-quiet='true'] .fs-water-line { opacity: 0; }
+.stage[data-quiet='true'] .fs-roots { opacity: .025; }
+.dr-mist { opacity: calc(var(--ecology) * .6); }
+.dr-watershine { fill: none; stroke: #b7cbbd; stroke-width: 2; opacity: calc(var(--ecology) * .42); }
+.dr-shadow { fill: #06120d; opacity: calc(var(--ecology) * .32); }
+.dr-life-dust { z-index: 2; }
+.ls-roots { opacity: calc(.4 + var(--pulse) * .06); }
+.ls-hotspot-ring, .ls-hotspot-ring::after { animation: none !important; }
+.rc-time-nav input, .fi-compare input { accent-color: var(--sunlight-soft); }
+
+/* A focus event restores every control before the next paint. */
+html[data-cinema-idle='true'], html[data-cinema-idle='true'] * { cursor: none !important; }
+html[data-cinema-idle='true'] .control-bar:not(:focus-within),
+html[data-cinema-idle='true'] .progress-rail:not(:focus-within) { opacity: 0; pointer-events: none; }
+html[data-cinema-idle='false'] .control-bar, .control-bar:focus-within { opacity: 1; transition-duration: 0ms; }
+:root[data-motion='reduced'] { --dur-instant: 1ms; --dur-quick: 200ms; --dur-medium: 200ms; --dur-slow: 200ms; --dur-cinematic: 200ms; }
+:root[data-motion='reduced'] .fs-roots { opacity: .12; }
+
+.handoff { position: fixed; inset: 0; z-index: 24; pointer-events: none; opacity: 0; }
+.handoff svg { width: 100%; height: 100%; }
+.handoff-path { fill: none; stroke: #c6c5a3; stroke-width: 1.8; vector-effect: non-scaling-stroke; }
+.handoff-ground { fill: none; stroke: #c6c5a3; stroke-width: 1; opacity: .24; }

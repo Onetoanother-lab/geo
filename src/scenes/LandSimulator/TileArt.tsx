@@ -14,11 +14,12 @@ export const TileArt = memo(function TileArt({ tile, index }: { tile: Tile; inde
   switch (tile.type) {
     case 'forest':
     case 'protected':
+    case 'managed':
       return (
         <svg viewBox="0 0 100 100" aria-hidden="true">
           <rect width="100" height="100" fill="#13291f" />
-          {canopy(seed, 9, 13, 22, '#24452f')}
-          {canopy(seed + 1, 6, 8, 14, '#35603a')}
+          {canopy(seed, tile.type === 'managed' ? 5 : 9, 13, 22, '#24452f')}
+          {canopy(seed + 1, tile.type === 'managed' ? 3 : 6, 8, 14, '#35603a')}
           {tile.type === 'protected' && <rect x="5" y="5" width="90" height="90" fill="none" stroke="#e9c77b" strokeWidth="3" strokeDasharray="6 6" />}
         </svg>
       );
@@ -68,7 +69,7 @@ export const TileArt = memo(function TileArt({ tile, index }: { tile: Tile; inde
       );
     case 'water':
       return (
-        <svg viewBox="0 0 100 100" aria-hidden="true">
+        <svg className="sim-water-art" viewBox="0 0 100 100" aria-hidden="true">
           <rect width="100" height="100" fill="#2f6670" />
           <path d="M10,35Q25,28 40,35T70,35M30,65Q45,58 60,65T90,65" stroke="#7fb4c0" strokeWidth="2.5" fill="none" opacity="0.7" />
         </svg>

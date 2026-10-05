@@ -381,19 +381,22 @@
 }
 
 @media (max-aspect-ratio: 5/4) {
+  .ls-stage { background: linear-gradient(#0c2a29, #4c7562 calc(16vh + 29.5vw), #392b1e calc(16vh + 29.5vw), #221c15); }
   .ls-frame {
-    top: 8vh;
+    top: 16vh;
     translate: -50% 0;
   }
   .ls-caption {
-    top: auto;
-    bottom: 4vh;
+    top: calc(16vh + 56.25vw + 1rem);
+    bottom: auto;
+    max-height: calc(100svh - 56.25vw - 28vh);
+    overflow-y: auto;
     width: auto;
     right: var(--gutter);
   }
   .ls-equation {
-    top: calc(8vh + 56.25vw + 1rem);
-    bottom: auto;
+    top: auto;
+    bottom: 3vh;
     font-size: var(--fs-lead);
   }
   .ls-hotspot-label {

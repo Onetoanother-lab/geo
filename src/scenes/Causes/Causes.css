@@ -270,4 +270,6 @@
     height: auto;
     width: 100%;
   }
+  .cz-driver { width: 27%; padding-inline: .1rem; }
+  .cz-driver-label { white-space: normal; overflow-wrap: anywhere; font-size: .68rem; letter-spacing: 0; }
 }

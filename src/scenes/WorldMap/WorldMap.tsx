@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Scene } from '../../components/layout/Scene';
-import { useSectionBeats } from '../../lib/animation/useSceneTimeline';
-import { gsap, useGSAP } from '../../lib/animation/gsap';
+import { useSceneTimeline } from '../../lib/animation/useSceneTimeline';
+import { gsap } from '../../lib/animation/gsap';
 import { getState, isReducedMotion, useReducedMotion } from '../../app/store';
 import { NARRATIVE } from '../../content/narrative';
 import { StatLine } from '../../components/visualizations/StatLine';
@@ -9,6 +9,8 @@ import type { FactId } from '../../content/facts';
 import { announce } from '../../lib/accessibility/announce';
 import { box, frame, graticule, latBand, loadCountries, makeProjection, MAP_H, MAP_W, pathFor, type CountryFeature } from '../../lib/geography/world';
 import { requestRefresh } from '../../lib/animation/refresh';
+import { LEAF, VEINS, RIVERS, RIVER_SPINE, GEO_LINES } from '../../lib/cinema/motifs';
+import { MOTION } from '../../lib/animation/motion';
 import './WorldMap.css';
 
 const T = NARRATIVE.world;
@@ -31,13 +33,14 @@ const REGIONS: { id: RegionId; countries: string[]; marker: [number, number]; fa
  */
 export function WorldMap() {
   const sectionRef = useRef<HTMLElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const cameraRef = useRef<SVGGElement>(null);
   const reduced = useReducedMotion();
   const [countries, setCountries] = useState<CountryFeature[] | null>(null);
   const [active, setActive] = useState<RegionId | null>(null);
   const [tropics, setTropics] = useState(true);
 
-  useSectionBeats(sectionRef, 'world', [0]);
+
 
   useEffect(() => {
     let alive = true;
@@ -76,16 +79,36 @@ export function WorldMap() {
     };
   }, [countries, path, projection]);
 
-  useGSAP(
-    () => {
+  useSceneTimeline(sectionRef, stageRef, {
+    chapter: 'world', length: 4.2, revision: geo,
+    build: (tl, { reduced, q }) => {
       if (!geo) return;
-      if (!reduced) {
-        gsap.from('.wm-land', { opacity: 0, duration: 1.6, scrollTrigger: { trigger: sectionRef.current, start: 'top 60%', toggleActions: 'play none none reverse' } });
-        gsap.from('.wm-graticule', { drawSVG: '0%', duration: 2.2, ease: 'power2.out', scrollTrigger: { trigger: sectionRef.current, start: 'top 60%', toggleActions: 'play none none reverse' } });
-      }
+      tl.addLabel('beat:leaf', 3)
+        .fromTo('.wm-scale', { autoAlpha: 0 }, { autoAlpha: 1, duration: 4 }, 0)
+        .fromTo('.wm-scale-vein', { drawSVG: '0%' }, { drawSVG: '100%', duration: reduced ? .1 : 10, stagger: 1 }, 3)
+        .addLabel('beat:veins', 17);
+      q('.wm-scale-vein').forEach((el, i) => {
+        tl.to(el, reduced ? { attr: { d: RIVERS[i] }, duration: .1 } : { morphSVG: RIVERS[i], duration: 17 }, 18)
+          .to(el, reduced ? { attr: { d: GEO_LINES[i] }, duration: .1 } : { morphSVG: GEO_LINES[i], duration: 16 }, 36);
+      });
+      tl.to('.wm-scale-leaf', { opacity: 0, duration: 10 }, 18)
+        .to('.wm-scale-spine', reduced ? { attr: { d: RIVER_SPINE }, duration: .1 } : { morphSVG: RIVER_SPINE, duration: 17 }, 18)
+        .to('.wm-scale-spine', { opacity: 0, duration: 10 }, 36)
+        .addLabel('beat:river', 32)
+        .fromTo('.wm-layout', { autoAlpha: 0 }, { autoAlpha: 1, duration: 12 }, 42)
+        .to('.wm-scale', { autoAlpha: 0, duration: 9 }, 49)
+        .fromTo('.wm-land', { opacity: .12 }, { opacity: 1, duration: 12 }, 46);
+      // Forest regions arrive one at a time, so the newest one holds attention;
+      // the places of the later cases join quietly with the controls.
+      const regions = q('.wm-region');
+      regions.filter((el) => el.dataset.kind === 'tropical' || el.dataset.kind === 'boreal').forEach((el, i) => {
+        tl.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 3 }, 52 + i * 3.5);
+      });
+      tl.fromTo(regions.filter((el) => el.dataset.kind !== 'tropical' && el.dataset.kind !== 'boreal'), { opacity: 0 }, { opacity: 1, duration: 5 }, 66)
+        .fromTo('.wm-head, .wm-list, .wm-panel', { autoAlpha: 0 }, { autoAlpha: 1, duration: 7 }, 66)
+        .addLabel('beat:world', 75);
     },
-    { scope: sectionRef, dependencies: [geo, reduced] },
-  );
+  });
 
   // Camera: frame the selected region.
   useEffect(() => {
@@ -95,9 +118,10 @@ export function WorldMap() {
     const { k, tx, ty } = target ? frame(target.bounds as [[number, number], [number, number]], target.id === 'aral' ? 9 : 6) : { k: 1, tx: 0, ty: 0 };
     const transform = `translate(${tx.toFixed(2)},${ty.toFixed(2)}) scale(${k.toFixed(3)})`;
     if (isReducedMotion(getState())) g.setAttribute('transform', transform);
-    else gsap.to(g, { attr: { transform }, duration: 1.6, ease: 'power3.inOut' });
+    const tween = !isReducedMotion(getState()) ? gsap.to(g, { attr: { transform }, duration: MOTION.transformation, ease: 'power3.inOut' }) : null;
     g.style.setProperty('--k', String(k));
-  }, [active, geo]);
+    return () => { tween?.kill(); };
+  }, [active, geo, reduced]);
 
   const select = (id: RegionId | null) => {
     setActive(id);
@@ -105,10 +129,18 @@ export function WorldMap() {
   };
 
   const info = active ? T.regions[active] : null;
-  const facts: FactId[] = active ? REGIONS.find((r) => r.id === active)!.facts : ['forestArea', 'forestShare', 'tropicsShare'];
+  const facts: FactId[] = active ? REGIONS.find((r) => r.id === active)!.facts : ['forestShare'];
 
   return (
-    <Scene chapter="world" sectionRef={sectionRef} auto stageClassName="wm-stage">
+    <Scene chapter="world" sectionRef={sectionRef} stageRef={stageRef} stageClassName="wm-stage">
+      <div className="wm-scale" aria-hidden="true">
+        <svg viewBox="0 0 1600 900">
+          <path className="wm-scale-leaf" d={LEAF} />
+          <path className="wm-scale-spine" d="M800,700C810,530 795,365 800,180" />
+          {VEINS.map((d, i) => <path className="wm-scale-vein" key={i} d={d} />)}
+        </svg>
+      </div>
+      <p className="wm-scale-accessible visually-hidden">{T.scaleAlt}</p>
       <div className="wm-layout">
         <div className="wm-head">
           <p className="title">{T.title}</p>
@@ -160,12 +192,7 @@ export function WorldMap() {
                   {geo.regions.map((r) => (
                     <path key={r.id} d={r.d} className="wm-region" data-kind={r.kind} data-on={active === r.id} onClick={() => select(active === r.id ? null : r.id)} />
                   ))}
-                  {geo.regions.map((r) => (
-                    <g key={`m-${r.id}`} className="wm-marker" data-kind={r.kind} data-on={active === r.id} transform={`translate(${r.marker[0].toFixed(1)} ${r.marker[1].toFixed(1)})`}>
-                      <circle r="4" className="wm-marker-dot" />
-                      <circle r="9" className="wm-marker-ring" />
-                    </g>
-                  ))}
+
                 </>
               ) : (
                 <path d={path({ type: 'Sphere' }) ?? ''} className="wm-sphere" />
@@ -177,6 +204,7 @@ export function WorldMap() {
         <div className="wm-panel" aria-live="off">
           <p className="wm-panel-name">{info ? info.name : T.overview}</p>
           <p className="body-copy">{info ? info.text : T.overviewText}</p>
+          <p className="wm-geography-note">{T.geographyNote}</p>
           <div className="wm-facts">
             {facts.map((f) => (
               <StatLine key={f} factId={f} />

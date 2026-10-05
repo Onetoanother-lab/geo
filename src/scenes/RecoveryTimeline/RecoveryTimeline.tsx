@@ -1,6 +1,7 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Scene } from '../../components/layout/Scene';
-import { useSceneTimeline } from '../../lib/animation/useSceneTimeline';
+import { useSceneTimeline, progressToScroll } from '../../lib/animation/useSceneTimeline';
+import { tweenLife } from '../../lib/animation/life';
 import { NARRATIVE } from '../../content/narrative';
 import { RECOVERY_MARKERS } from '../../content/caseStudies';
 import { FACTS } from '../../content/facts';
@@ -20,6 +21,8 @@ const BASE = { x: 800, y: 760 };
 export function RecoveryTimeline() {
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const sliderRef = useRef<HTMLInputElement>(null);
+  const [period, setPeriod] = useState(0);
 
   const art = useMemo(() => {
     const sys = rootSystem(BASE.x, BASE.y, 777, { length: 520, depth: 5, spread: 0.62, up: true });
@@ -33,20 +36,19 @@ export function RecoveryTimeline() {
     };
   }, []);
 
-  useSceneTimeline(sectionRef, stageRef, {
+  const trigger = useSceneTimeline(sectionRef, stageRef, {
     chapter: 'recovery',
     length: 4.6,
     scrub: 1.2,
-    build: (tl, { reduced, q }) => {
+    build: (tl, { reduced, q, narrate }) => {
       const line = (sel: string, a: number, b: number) => {
-        tl.fromTo(sel, { opacity: 0, y: reduced ? 0 : 12 }, { opacity: 1, y: 0, duration: 4 }, a);
-        if (b) tl.to(sel, { opacity: 0, duration: 4 }, b);
+        narrate(sel, a, b || undefined);
       };
       tl.addLabel('beat:seed', 6);
       tl.fromTo('.rc-veil', { opacity: 1 }, { opacity: 0, duration: 6 }, 0);
-      tl.fromTo('.rc-scene', { '--life': 0 }, { '--life': 0.85, duration: 88 }, 8);
+      tweenLife(tl, q('.rc-scene')[0], 0, 0.85, 88, 8);
       line('.rc-plant', 2, 15);
-      tl.fromTo('.rc-sprout', { scale: 0, transformOrigin: '50% 100%' }, { scale: 1, duration: 6, ease: 'power2.out' }, 3).to('.rc-sprout', { opacity: 0, duration: 6 }, 16);
+      tl.fromTo('.rc-sprout', { scale: reduced ? 1 : 0, opacity: 0, transformOrigin: '50% 100%' }, { scale: 1, opacity: 1, duration: 6, ease: 'power2.out' }, 3).to('.rc-sprout', { opacity: 0, duration: 6 }, 16);
 
       // Branches by depth.
       const depthWindows = [
@@ -62,7 +64,7 @@ export function RecoveryTimeline() {
         if (segs.length) tl.fromTo(segs, { drawSVG: '0%' }, { drawSVG: '100%', duration: b - a, stagger: (b - a) / (segs.length * 3) }, a);
       });
       if (!reduced) tl.fromTo('.rc-tree', { scale: 0.42, transformOrigin: `${BASE.x}px ${BASE.y}px` }, { scale: 1, duration: 70, ease: 'power1.out' }, 12);
-      tl.fromTo('.rc-crown circle', { opacity: 0, scale: 0.2, transformOrigin: '50% 50%' }, { opacity: 1, scale: 1, duration: 4, stagger: { amount: 16, from: 'random' } }, 58);
+      tl.fromTo('.rc-crown circle', { opacity: 0, scale: reduced ? 1 : 0.2, transformOrigin: '50% 50%' }, { opacity: 1, scale: 1, duration: 4, stagger: { amount: 16, from: 'center' } }, 58);
 
       line('.rc-sapling', 19, 34);
       tl.addLabel('beat:sapling', 26);
@@ -78,14 +80,22 @@ export function RecoveryTimeline() {
       tl.addLabel('beat:notequal', 92);
 
       // Time markers light up in turn.
-      q('.rc-marker').forEach((m, i) => {
-        tl.fromTo(m, { opacity: 0.25 }, { opacity: 1, duration: 3 }, RECOVERY_MARKERS[i].at * 100 - 2);
+      q('.rc-time-ring').forEach((m, i) => {
+        tl.fromTo(m, { opacity: 0.16 }, { opacity: 0.85, duration: 3 }, RECOVERY_MARKERS[i].at * 100 - 2);
       });
-      tl.fromTo('.rc-cursor', { scaleY: 0 }, { scaleY: 1, transformOrigin: 'top', duration: 88 }, 4);
+      tl.eventCallback('onUpdate', () => {
+        const p = tl.time() / 100;
+        let i = 0;
+        RECOVERY_MARKERS.forEach((m, k) => { if (p + .001 >= m.at) i = k; });
+        setPeriod((previous) => previous === i ? previous : i);
+        if (sliderRef.current && document.activeElement !== sliderRef.current) sliderRef.current.value = String(Math.round(p * 100));
+      });
     },
   });
 
   const rootStroke = (d: number) => [22, 13, 7, 4, 2.4, 1.4][d] ?? 1;
+  const goToTime = (p: number) => { if (trigger.current) window.scrollTo({ top: progressToScroll(trigger.current, p), behavior: 'auto' }); };
+  const marker = RECOVERY_MARKERS[period];
 
   return (
     <Scene chapter="recovery" sectionRef={sectionRef} stageRef={stageRef} stageClassName="rc-stage">
@@ -111,22 +121,19 @@ export function RecoveryTimeline() {
         </svg>
       </div>
 
-      <div className="rc-timeline">
-        <span className="rc-rail" aria-hidden="true">
-          <span className="rc-cursor" />
-        </span>
-        <ol className="rc-markers" aria-label={T.studyNote}>
-        {RECOVERY_MARKERS.map((m) => (
-          <li key={m.label} className="rc-marker" style={{ top: `${m.at * 100}%` }}>
-            <span className="rc-marker-age">{m.label}</span>
-            {m.factId && (
-              <span className="rc-marker-fact">
-                {FACTS[m.factId].value} — {FACTS[m.factId].label}
-              </span>
-            )}
-          </li>
-        ))}
-        </ol>
+      <div className="rc-time-nav" data-local-keys>
+        <svg className="rc-rings" viewBox="0 0 440 440" aria-hidden="true">
+          {RECOVERY_MARKERS.map((m, i) => <g key={m.label}>
+            <circle className="rc-time-ring" cx="220" cy="220" r={38 + i * 32} />
+            <text x="225" y={224 - (38 + i * 32)}>{m.label}</text>
+          </g>)}
+        </svg>
+        <div className="rc-time-stops" role="group" aria-label={T.ringsLabel}>
+          {RECOVERY_MARKERS.map((m, i) => <button key={m.label} type="button" aria-pressed={i === period} onClick={() => goToTime(m.at)}>{m.label}</button>)}
+        </div>
+        <label className="visually-hidden" htmlFor="rc-time">{T.timeLabel}</label>
+        <input ref={sliderRef} id="rc-time" type="range" min="0" max="100" defaultValue="0" onInput={(e) => goToTime(Number(e.currentTarget.value) / 100)} aria-valuetext={marker.label} />
+        <p className="rc-time-fact" aria-live="polite">{marker.factId ? <><strong>{FACTS[marker.factId].value} {FACTS[marker.factId].unit}</strong> — {FACTS[marker.factId].label}</> : T.plantingFast}</p>
       </div>
       <p className="rc-study source-ref">
         {T.studyNote}{' '}

@@ -2,6 +2,9 @@ import { useEffect, useRef, type RefObject } from 'react';
 import { gsap, ScrollTrigger, useGSAP } from './gsap';
 import { registerBeats } from './beats';
 import { useReducedMotion } from '../../app/store';
+import { CHAPTER_IDS, type ChapterId } from '../../app/chapters';
+import { requestRefresh } from './refresh';
+import { MOTION } from './motion';
 
 export type SceneContext = {
   reduced: boolean;
@@ -9,6 +12,8 @@ export type SceneContext = {
   section: HTMLElement;
   /** Scoped selector (inside the section). */
   q: <T extends Element = HTMLElement>(selector: string) => T[];
+  /** Scroll chooses the sentence; its entrance runs in real time. */
+  narrate: (target: string | Element, enter: number, leave?: number) => void;
 };
 
 export type SceneTimelineOptions = {
@@ -19,7 +24,8 @@ export type SceneTimelineOptions = {
   length: number;
   /** Scrub smoothing in seconds (`true` = locked to scroll). */
   scrub?: number | true;
-  build: (tl: gsap.core.Timeline, ctx: SceneContext) => void;
+  revision?: unknown;
+  build: (tl: gsap.core.Timeline, ctx: SceneContext) => void | (() => void);
   onUpdate?: (self: ScrollTrigger) => void;
   onToggle?: (self: ScrollTrigger) => void;
 };
@@ -49,7 +55,7 @@ export function useSceneTimeline(
       const section = sectionRef.current;
       const stage = stageRef.current;
       if (!section || !stage) return;
-      const { chapter, key, length, scrub, build } = optsRef.current;
+      const { chapter, key, length, scrub, build } = options;
 
       const tl = gsap.timeline({
         defaults: { ease: 'none', duration: 1 },
@@ -62,6 +68,9 @@ export function useSceneTimeline(
           anticipatePin: 1,
           scrub: scrub ?? (reduced ? true : 0.6),
           invalidateOnRefresh: true,
+          // Lazy geography may rebuild out of creation order; pin offsets must still
+          // be measured in documentary order, including Home/End destinations.
+          refreshPriority: 100 - CHAPTER_IDS.indexOf(chapter as ChapterId),
           onUpdate: (self) => optsRef.current.onUpdate?.(self),
           onToggle: (self) => optsRef.current.onToggle?.(self),
         },
@@ -71,13 +80,34 @@ export function useSceneTimeline(
 
       const q = <T extends Element = HTMLElement>(selector: string) =>
         Array.from(section.querySelectorAll<T>(selector));
-      build(tl, { reduced, stage, section, q });
+      const narration: { targets: Element[]; enter: number; leave: number; visible: boolean; tween: gsap.core.Tween | null }[] = [];
+      const narrate: SceneContext['narrate'] = (target, enter, leave = Infinity) => {
+        const targets = typeof target === 'string' ? q(target) : [target];
+        gsap.set(targets, { autoAlpha: 0 });
+        narration.push({ targets, enter, leave, visible: false, tween: null });
+      };
+      const cleanup = build(tl, { reduced, stage, section, q, narrate });
+      const sceneUpdate = tl.eventCallback('onUpdate');
+      const updateNarration = () => {
+        sceneUpdate?.call(tl);
+        for (const line of narration) {
+          const visible = tl.time() >= line.enter && tl.time() < line.leave;
+          if (visible === line.visible) continue;
+          line.visible = visible;
+          line.tween?.kill();
+          line.tween = gsap.to(line.targets, { autoAlpha: visible ? 1 : 0,
+            duration: reduced ? MOTION.reduced : visible ? MOTION.text : MOTION.ui,
+            ease: 'power1.out', overwrite: 'auto' });
+        }
+      };
+      if (narration.length) { tl.eventCallback('onUpdate', updateNarration); updateNarration(); }
       if (import.meta.env.DEV && tl.duration() > TIMELINE_UNITS + 0.5) {
         console.warn(`[scene:${chapter}] timeline is ${tl.duration().toFixed(1)} units long (expected ${TIMELINE_UNITS}); beats will drift.`);
       }
 
       const st = tl.scrollTrigger ?? null;
       triggerRef.current = st;
+      requestRefresh(80);
 
       const labels = Object.entries(tl.labels)
         .filter(([name]) => name.startsWith('beat:'))
@@ -91,11 +121,13 @@ export function useSceneTimeline(
       });
 
       return () => {
+        narration.forEach((line) => line.tween?.kill());
+        cleanup?.();
         unregister();
         triggerRef.current = null;
       };
     },
-    { scope: sectionRef, dependencies: [reduced], revertOnUpdate: true },
+    { scope: sectionRef, dependencies: [reduced, options.revision], revertOnUpdate: true },
   );
 
   return triggerRef;

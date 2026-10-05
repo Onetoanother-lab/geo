@@ -1,6 +1,11 @@
 .ar-stage {
-  background: #0b0a08;
+  background: #15211e;
 }
+.ar-geography { position: absolute; inset: 12% 0; width: 100%; height: 76%; }
+.ar-geography path { vector-effect: non-scaling-stroke; stroke-width: 1; }
+.ar-geo-world { fill: #2c4539; stroke: #738574; }
+.ar-geo-central { fill: #8a9f76; stroke: #d5d8b3; }
+.ar-geo-uz { fill: #c9b28b; stroke: #f0dbb7; }
 
 /* — Map phase — */
 .ar-map-wrap {
@@ -199,7 +204,7 @@
 .ar-black {
   position: absolute;
   inset: 0;
-  background: #0b0a08;
+  background: #15211e;
   pointer-events: none;
 }
 

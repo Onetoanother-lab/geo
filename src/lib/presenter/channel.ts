@@ -1,8 +1,15 @@
 import type { ChapterId } from '../../app/chapters';
 
+export type PresenterSnapshot = {
+  type: 'state'; chapterId: ChapterId; progress: number; soundOn: boolean;
+  chapterProgress: number; currentBeat: string; startedAt: number | null;
+  resolution: [number, number]; reduced: boolean;
+};
+
 export type PresenterMessage =
-  | { type: 'state'; chapterId: ChapterId; progress: number; soundOn: boolean }
-  | { type: 'command'; action: 'next' | 'prev' | 'home' | 'end' | 'mute' }
+  | PresenterSnapshot
+  | { type: 'command'; action: 'next' | 'prev' | 'home' | 'end' | 'mute' | 'audio-check' }
+  | { type: 'calibrate'; lift: number }
   | { type: 'hello' };
 
 const NAME = 'ormon-presenter';
@@ -19,5 +26,6 @@ export function openPresenterWindow(): void {
   const url = new URL(window.location.href);
   url.search = '?presenter';
   url.hash = '';
-  window.open(url.toString(), 'ormon-presenter', 'popup,width=980,height=720');
+  const opened = window.open(url.toString(), 'ormon-presenter', 'popup,width=1100,height=800');
+  if (opened) opened.focus();
 }
