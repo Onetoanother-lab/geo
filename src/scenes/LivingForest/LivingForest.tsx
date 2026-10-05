@@ -4,7 +4,9 @@ import { useSceneTimeline } from '../../lib/animation/useSceneTimeline';
 import { NARRATIVE } from '../../content/narrative';
 import { StatLine } from '../../components/visualizations/StatLine';
 import { announce } from '../../lib/accessibility/announce';
-import { Diorama, HOTSPOTS, type Topic } from './Diorama';
+import { DustField } from '../../components/visualizations/forest/DustField';
+import { SHAFT_SLOPE } from '../../lib/forest/scenery';
+import { Diorama, GROUND, HOTSPOTS, LS_BANDS, type Topic } from './Diorama';
 import './LivingForest.css';
 
 const T = NARRATIVE.system;
@@ -54,8 +56,9 @@ export function LivingForest() {
 
   return (
     <Scene chapter="system" sectionRef={sectionRef} stageRef={stageRef} stageClassName="ls-stage">
-      <div className="ls-frame" data-active={activeAttr} data-any={active ? 'true' : 'false'}>
+      <div className="ls-frame ls-palette" data-active={activeAttr} data-any={active ? 'true' : 'false'}>
         <Diorama />
+        <DustField className="ls-dust fs-dust" count={70} light={{ bands: LS_BANDS, slope: SHAFT_SLOPE, maxY: GROUND - 6 }} />
         <div className="ls-underground-mask" aria-hidden="true" />
         <div className="ls-hotspots" role="group" aria-label={T.instruction}>
           {HOTSPOTS.map((h) => (

@@ -16,15 +16,15 @@
 }
 .ar-map {
   position: absolute;
-  inset: 6vh 0;
+  inset: 0;
   width: 100%;
-  height: 88vh;
-}
-.ar-land {
-  fill: #2e2619;
+  height: 100%;
 }
 .ar-water {
-  fill: #3f7f86;
+  fill: url(#ar-water-g);
+  stroke: #b4e6e4;
+  stroke-width: 1.6;
+  stroke-opacity: 0.5;
 }
 .ar-seabed {
   opacity: 0;
@@ -93,10 +93,17 @@
   inset: 0;
   opacity: 0;
 }
+/* A huge pale sky: desaturated turquoise high up, bleached to sand at the horizon, one low white sun in the haze. */
 .ar-sky {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, #a89d88 0%, #d8c9a8 45%, #e6d9bb 52%);
+  background: linear-gradient(to bottom, #8ea3a2 0%, #b9c3b6 30%, #ddd6bc 52%, #efe6cf 64%);
+}
+.ar-sky::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle 34vmax at 76% 62%, rgb(255 250 232 / 70%) 0%, rgb(255 246 222 / 26%) 24%, transparent 62%);
 }
 .ar-ground-svg {
   position: absolute;
@@ -111,11 +118,15 @@
 }
 .ar-cracks {
   fill: none;
-  stroke: #8f7a5b;
-  stroke-width: 1.2;
+  stroke: #8c7655;
+  stroke-width: 1.1;
   stroke-linejoin: round;
-  opacity: 0.55;
+  stroke-linecap: round;
+  opacity: 0.5;
 }
+.ar-salt { fill: #fbf6e8; opacity: 0.4; }
+.ar-ship-shadow { fill: rgb(96 72 44 / 30%); }
+.ar-stalks path { fill: none; stroke: #4a3a2a; stroke-linecap: round; stroke-linejoin: round; }
 .ar-patch {
   fill: #8d9273;
   opacity: 0;
@@ -146,7 +157,7 @@
 .ar-haze {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, rgb(230 214 184 / 0%) 20%, rgb(230 214 184 / 75%) 55%, rgb(201 176 138 / 30%) 100%);
+  background: linear-gradient(to bottom, rgb(236 226 205 / 0%) 34%, rgb(236 226 205 / 78%) 63%, rgb(205 183 143 / 22%) 100%);
   pointer-events: none;
 }
 .ar-saxaul-label {

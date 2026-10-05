@@ -13,16 +13,28 @@
   max-width: var(--section-max);
   margin-inline: auto;
 }
+/* Each story has its own world: the page background changes, not just the map. */
+.cs-case::before {
+  content: '';
+  position: absolute;
+  inset: 0 calc(50% - 50vw);
+  z-index: 0;
+  pointer-events: none;
+}
 .cs-text {
+  position: relative;
+  z-index: 1;
   display: grid;
   gap: var(--space-4);
   align-content: center;
+  text-shadow: 0 1px 20px rgb(0 0 0 / 70%);
 }
 .cs-kicker {
   color: var(--sunlight-soft);
 }
 .cs-visual {
   position: relative;
+  z-index: 1;
   display: grid;
   gap: var(--space-4);
   justify-items: center;
@@ -35,15 +47,15 @@
 }
 .country-dots {
   width: 100%;
-  max-height: 64vh;
+  max-height: 78vh;
 }
 .cd-outline {
   fill: none;
-  stroke: rgb(241 236 226 / 16%);
+  stroke: rgb(241 236 226 / 14%);
   stroke-width: 1;
 }
 .cd-dot {
-  fill: rgb(241 236 226 / 12%);
+  fill: rgb(241 236 226 / 13%);
   transition: fill 600ms var(--ease-out);
 }
 .cd-dot[data-forest='true'] {
@@ -53,21 +65,28 @@
   fill: #6fb3b0;
 }
 
-/* — UK — */
-.cs-case--uk {
-  background: radial-gradient(ellipse at 70% 50%, #0f1c18 0%, transparent 60%);
+/* — UK: cold, damp light; one number carries the frame — */
+.cs-case--uk::before {
+  background:
+    radial-gradient(ellipse 60% 50% at 72% 46%, rgb(120 160 150 / 22%) 0%, transparent 70%),
+    linear-gradient(to bottom, #0b1514 0%, #121e1c 55%, #091110 100%);
 }
+.cs-case--uk { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
 .cs-big {
   display: flex;
   align-items: baseline;
   gap: var(--space-4);
+  margin-block: -0.1em -0.18em;
 }
 .cs-big-value {
   font-family: var(--font-display);
   font-variation-settings: 'opsz' 144;
-  font-size: var(--fs-colossal);
-  line-height: 0.9;
-  color: var(--leaf-bright);
+  font-weight: 300;
+  font-size: clamp(7rem, 21vw, 24rem);
+  line-height: 0.82;
+  letter-spacing: -0.03em;
+  color: color-mix(in oklab, var(--leaf-bright) 82%, #e6f0c0);
+  text-shadow: 0 0 80px rgb(155 181 98 / 25%);
 }
 .cs-big-year {
   font-family: var(--font-mono);
@@ -99,13 +118,13 @@
   font-size: var(--fs-lead);
 }
 .cs-dots--uk {
-  max-height: 52vh;
+  max-height: 84vh;
 }
 .cs-chart {
   width: min(100%, 32rem);
 }
 .cs-chart-area {
-  fill: color-mix(in oklab, var(--leaf) 30%, transparent);
+  fill: color-mix(in oklab, var(--leaf) 26%, transparent);
 }
 .cs-chart-line {
   fill: none;
@@ -134,15 +153,39 @@
   justify-self: end;
 }
 
-/* — Japan — */
+/* — Japan: a rising light behind an island chain; the planted share is the story — */
 .cs-case--jp {
   grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 1fr);
-  background: radial-gradient(ellipse at 30% 50%, #0d1a19 0%, transparent 60%);
+}
+.cs-case--jp::before {
+  background:
+    radial-gradient(circle 34vmax at 34% 42%, rgb(236 196 128 / 18%) 0%, rgb(236 196 128 / 5%) 46%, transparent 70%),
+    linear-gradient(to bottom, #060d12 0%, #0b1a1d 60%, #071012 100%);
+}
+.cs-case--jp .cs-dots--jp,
+.cs-case--jp .country-dots { max-height: 82vh; }
+.cs-case--jp .cs-facts .stat-line:first-child .stat-value {
+  font-size: clamp(4.5rem, 11vw, 13rem);
+  line-height: 0.85;
+  font-weight: 300;
+  color: color-mix(in oklab, var(--leaf-bright) 80%, #fff);
 }
 .cs-toggle {
   display: flex;
-  gap: var(--space-2);
+  gap: var(--space-5);
   flex-wrap: wrap;
+}
+.cs-toggle .pill-button {
+  padding: 0.4em 0;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid rgb(241 236 226 / 25%);
+  border-radius: 0;
+}
+.cs-toggle .pill-button[aria-checked='true'] {
+  background: none;
+  border-bottom-color: #fff1c2;
+  color: #fff1c2;
 }
 .cs-legend {
   list-style: none;
@@ -184,18 +227,18 @@
   gap: var(--space-3);
 }
 .cs-compare-bar {
-  height: 5px;
+  height: 3px;
   background: linear-gradient(to right, var(--leaf-bright) calc(var(--v) * 100%), rgb(241 236 226 / 10%) 0);
 }
 .cs-compare-bar--world {
   background: linear-gradient(to right, var(--text-muted) calc(var(--v) * 100%), rgb(241 236 226 / 10%) 0);
 }
 
-/* — Uzbekistan — */
-.cs-case--uz {
+/* — Uzbekistan: the first dry light — */
+.cs-case--uz::before {
   background:
-    radial-gradient(ellipse at 70% 55%, rgb(185 138 75 / 16%) 0%, transparent 60%),
-    linear-gradient(to bottom, #070c0b, #14100b);
+    radial-gradient(ellipse 70% 60% at 70% 62%, rgb(214 160 92 / 26%) 0%, transparent 66%),
+    linear-gradient(to bottom, #0a100f 0%, #221a11 52%, #3a2b19 100%);
 }
 .cs-case--uz .cs-kicker {
   color: var(--ochre);
@@ -203,33 +246,43 @@
 .cs-case--uz .stat-value {
   color: var(--dust-pale);
 }
+.cs-case--uz .cs-facts .stat-line:first-child .stat-value {
+  font-size: clamp(4.5rem, 10vw, 12rem);
+  line-height: 0.85;
+  font-weight: 300;
+}
 .cs-uz {
   width: 100%;
-  max-height: 58vh;
+  max-height: 66vh;
   overflow: visible;
 }
 .cs-uz-outline {
-  fill: color-mix(in oklab, var(--ochre) 18%, #14100b);
-  stroke: var(--dust);
-  stroke-width: 1.2;
+  fill: url(#cs-uz-sand);
+  stroke: #e6c98f;
+  stroke-width: 1.4;
+  stroke-opacity: 0.8;
 }
 .cs-uz-route {
   fill: none;
   stroke: var(--sunlight);
-  stroke-width: 2;
-  stroke-dasharray: 6 8;
+  stroke-width: 2.4;
+  stroke-dasharray: 0.1 11;
+  stroke-linecap: round;
   animation: cs-route 1.6s linear infinite;
 }
 @keyframes cs-route {
   to {
-    stroke-dashoffset: -28;
+    stroke-dashoffset: -44;
   }
 }
 .cs-uz-zone text {
   font-family: var(--font-mono);
   font-size: 13px;
-  letter-spacing: 0.04em;
-  fill: var(--dust-pale);
+  letter-spacing: 0.1em;
+  fill: #fff1d2;
+  paint-order: stroke;
+  stroke: rgb(20 12 4 / 80%);
+  stroke-width: 4px;
 }
 .cs-uz-zone circle,
 .cs-uz-zone path {
@@ -251,10 +304,12 @@
   color: var(--sunlight-soft);
   text-align: center;
 }
+:root[data-motion='reduced'] .cs-uz-route { animation: none; }
 
 @media (max-width: 900px) {
   .cs-case,
-  .cs-case--jp {
+  .cs-case--jp,
+  .cs-case--uk {
     grid-template-columns: 1fr;
   }
   .cs-case--jp .cs-visual {

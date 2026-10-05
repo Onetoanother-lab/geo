@@ -34,26 +34,49 @@
   opacity: var(--exposure);
 }
 .scene-light::after { content: ''; position: absolute; inset: 0; background: #c1c8af; opacity: var(--projector-lift); }
+/* A static grain tile (see lib/cinema/grain.ts) over every scene; light scenes get less so they stay clean. */
+.scene-light::before { content: ''; position: absolute; inset: 0; background-image: var(--grain); background-size: 192px; opacity: .5; z-index: 1; }
+.scene--aral .scene-light::before, .scene--cases .scene-light::before { opacity: .32; }
 .scene--aral .scene-light-shade { opacity: 0; }
 .scene--aral .scene-light-exposure { background: linear-gradient(#f2e7cf26, transparent 70%); }
-.forest-scene, .dr-scene, .rc-scene {
+/*
+ * One palette, three worlds. --life 1 is the lit emerald forest (cool shadow, warm filtered light),
+ * ~.5 is the disturbed yellow-grey one, 0 is dust, charcoal and bleached air. --hi blends the
+ * disturbed world toward the healthy one, --lo blends the dead world toward the disturbed one.
+ * Distance is colour: every plane is mixed toward --atmo in proportion to how far it is.
+ */
+.forest-scene, .dr-scene, .rc-scene, .ls-palette {
   --life-pct: calc(var(--life) * 100%);
-  --sky-top: color-mix(in oklab, #102d2b var(--life-pct), #8d8676);
-  --sky-bottom: color-mix(in oklab, #426b5e var(--life-pct), #d9c7a2);
-  --tree-far: color-mix(in oklab, #375b4d var(--life-pct), #8f8678);
-  --tree-mid: color-mix(in oklab, #234333 var(--life-pct), #6d6457);
-  --tree-near: color-mix(in oklab, #122e22 var(--life-pct), #4b4339);
-  --tree-front: color-mix(in oklab, #091a13 var(--life-pct), #2c2620);
-  --canopy-light: color-mix(in oklab, #718056 var(--life-pct), #9d8c6c);
-  --ground: color-mix(in oklab, #223523 var(--life-pct), #8a6c4a);
-  --ground-far: color-mix(in oklab, #304932 var(--life-pct), #a88d68);
-  --river: color-mix(in oklab, #567d7c var(--life-pct), #8b6a45);
+  --hi: clamp(0%, calc((var(--life) - .42) * 172%), 100%);
+  --lo: clamp(0%, calc(var(--life) * 190%), 100%);
+  --sky-top: color-mix(in oklab, #0b3a3d var(--hi), color-mix(in oklab, #66736a var(--lo), #a69c86));
+  --sky-mid: color-mix(in oklab, #3f8a7c var(--hi), color-mix(in oklab, #a3a58a var(--lo), #cdbd98));
+  --sky-bottom: color-mix(in oklab, #e4e0a6 var(--hi), color-mix(in oklab, #d9cfa4 var(--lo), #ead9b0));
+  --atmo: color-mix(in oklab, #a6cdb0 var(--hi), color-mix(in oklab, #c4c29c var(--lo), #dcc9a0));
+  --shadow-cool: color-mix(in oklab, #04282a var(--hi), color-mix(in oklab, #2a3028 var(--lo), #2a241d));
+  --c-far: color-mix(in oklab, #2d6e60 var(--hi), color-mix(in oklab, #5c6b58 var(--lo), #80786a));
+  --c-farmid: color-mix(in oklab, #206050 var(--hi), color-mix(in oklab, #4d5a49 var(--lo), #6d655a));
+  --c-mid: color-mix(in oklab, #164f42 var(--hi), color-mix(in oklab, #3f4739 var(--lo), #5a5348));
+  --c-near: color-mix(in oklab, #0d3733 var(--hi), color-mix(in oklab, #2f352c var(--lo), #443e36));
+  --c-front: color-mix(in oklab, #07282a var(--hi), color-mix(in oklab, #22251f var(--lo), #2e2a24));
+  --tree-deep: color-mix(in oklab, var(--atmo) 84%, var(--c-far));
+  --tree-far: color-mix(in oklab, var(--atmo) 68%, var(--c-far));
+  --tree-farmid: color-mix(in oklab, var(--atmo) 50%, var(--c-farmid));
+  --tree-mid: color-mix(in oklab, var(--atmo) 30%, var(--c-mid));
+  --tree-near: color-mix(in oklab, var(--atmo) 10%, var(--c-near));
+  --tree-front: var(--c-front);
+  --canopy-light: color-mix(in oklab, #b6c46a var(--hi), color-mix(in oklab, #b5b080 var(--lo), #d4c392));
+  --rim: color-mix(in oklab, #f0d98a var(--hi), color-mix(in oklab, #ecd9a0 var(--lo), #f4e6c0));
+  --ground: color-mix(in oklab, #1d4130 var(--hi), color-mix(in oklab, #4d523f var(--lo), #8a6c4a));
+  --ground-far: color-mix(in oklab, #3a6b4f var(--hi), color-mix(in oklab, #8d8f6c var(--lo), #a88d68));
+  --ground-bare: color-mix(in oklab, #7a5a3a var(--hi), #b0925f);
+  --river: color-mix(in oklab, #4d93a0 var(--hi), color-mix(in oklab, #7f8f86 var(--lo), #8b6a45));
   --mist-opacity: calc(.15 + var(--life) * .45);
-  --light-warmth: color-mix(in oklab, #f0cf86 var(--life-pct), #f4f1ea);
+  --light-warmth: color-mix(in oklab, #f6dd94 var(--hi), color-mix(in oklab, #f2e6c0 var(--lo), #f6efdc));
   filter: saturate(var(--saturation));
 }
-.fs-vignette { opacity: calc(.25 + var(--life) * .65); }
-.fs-shaft { animation: none; opacity: calc(.3 + var(--pulse) * .065); }
+.fs-vignette { opacity: calc(.3 + var(--life) * .5); }
+.fs-shaft-set { opacity: calc(.18 + var(--life) * .62 + var(--pulse) * .03); }
 .fs-sway { animation: none; }
 .fs-water, .fs-roots, .fs-ecology, .fs-occlusion { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .fs-water-body { fill: var(--river); opacity: calc(.3 + var(--life) * .45); }

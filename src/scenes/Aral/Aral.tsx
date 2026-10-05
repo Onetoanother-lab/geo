@@ -140,7 +140,7 @@ export function Aral() {
         <div className="ar-sky" />
         <AralGround shrubs={shrubs} />
         <div className="ar-haze" />
-        <DustField className="ar-dust" color="#a88d68" count={130} wind={{ x: 70, y: -6 }} intensity={0.2} seed={21} size={[0.6, 2.8]} />
+        <DustField className="ar-dust" color="#a88d68" count={90} wind={{ x: 70, y: -6 }} intensity={0.2} seed={21} size={[0.6, 2.8]} />
         <p className="ar-saxaul-label">
           <span className="ar-saxaul-name">{T.saxaul}</span>
           <em>{T.saxaulLatin}</em>

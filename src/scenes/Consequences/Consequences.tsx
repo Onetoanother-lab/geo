@@ -6,6 +6,7 @@ import { NARRATIVE } from '../../content/narrative';
 import { StatLine } from '../../components/visualizations/StatLine';
 import type { FactId } from '../../content/facts';
 import { CHAIN_ICONS } from './icons';
+import { DustField } from '../../components/visualizations/forest/DustField';
 import './Consequences.css';
 
 const T = NARRATIVE.consequences;
@@ -69,6 +70,7 @@ export function Consequences() {
 
   return (
     <Scene chapter="consequences" sectionRef={sectionRef} stageRef={stageRef} stageClassName="cq-stage">
+      <DustField className="cq-dust" color="#e0bd84" count={54} wind={{ x: 9, y: -7 }} intensity={0.6} seed={5} size={[0.6, 2.1]} />
       <p className="cq-title display">{T.title}</p>
       <div className="cq-tabs" role="group" aria-label={T.title}>
         {CHAINS.map((c, i) => (
@@ -80,10 +82,17 @@ export function Consequences() {
       {CHAINS.map((c) => (
         <div key={c.key} className="cq-chain" data-chain={c.key}>
           <svg className="cq-svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <defs>
+              <radialGradient id="cq-glow">
+                <stop offset="0" stopColor="#f0b36a" stopOpacity="0.3" />
+                <stop offset="1" stopColor="#f0b36a" stopOpacity="0" />
+              </radialGradient>
+            </defs>
             <path d={LINE} className="cq-line-ghost" />
             <path d={LINE} className="cq-line" />
             {NODE_X.map((x, i) => (
               <g key={x} className="cq-node" transform={`translate(${x} 450)`}>
+                <circle r="130" fill="url(#cq-glow)" />
                 <circle r="58" className="cq-node-ring" />
                 <g transform="translate(-24 -24) scale(2)">
                   <path d={CHAIN_ICONS[c.icons[i]]} className="cq-icon" />

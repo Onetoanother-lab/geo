@@ -1,7 +1,8 @@
 import { useRef } from 'react';
 import { Scene } from '../../components/layout/Scene';
 import { Narration } from '../../components/layout/Narration';
-import { ForestScene, HERO } from '../../components/visualizations/forest/ForestScene';
+import { ForestScene, HERO, STUMP_TOP } from '../../components/visualizations/forest/ForestScene';
+import { CHIPS, LANDING, LEAVES, PUFFS } from './debris';
 import { useSceneTimeline } from '../../lib/animation/useSceneTimeline';
 import { gsap, useGSAP } from '../../lib/animation/gsap';
 import { getState, useReducedMotion, useStore } from '../../app/store';
@@ -49,7 +50,7 @@ export function IntroForest() {
     length: 5.2,
     build: (tl, { reduced, q, stage }) => {
       const forest = q('.forest-scene')[0];
-      const [d0, d1, d2, d3] = [0, 1, 2, 3].map((i) => q(`.fs-depth[data-depth="${i}"]`)[0]);
+      const [d0, d1, d2, d3, d4] = [0, 1, 2, 3, 4].map((i) => q(`.fs-depth[data-depth="${i}"]`)[0]);
       const heroTree = q('.fs-hero-tree')[0];
       const stump = q('.fs-hero-stump')[0];
 
@@ -62,7 +63,8 @@ export function IntroForest() {
         tl.to(d0, { scale: 1.05, duration: 48 }, 0)
           .to(d1, { scale: 1.12, duration: 48 }, 0)
           .to(d2, { scale: 1.24, yPercent: 2, duration: 48 }, 0)
-          .to(d3, { scale: 1.55, duration: 48 }, 0);
+          .to(d3, { scale: 1.55, duration: 48 }, 0)
+          .to(d4, { scale: 1.9, yPercent: -3, duration: 48 }, 0);
       }
 
       tl.fromTo('.intro-notonly', { opacity: 0, y: reduced ? 0 : 24 }, { opacity: 1, y: 0, duration: 5 }, 21)
@@ -116,6 +118,18 @@ export function IntroForest() {
         stage.dataset.health = String(condition.health);
         stage.dataset.hush = String(condition.hush);
       }, onComplete: () => { status = 'complete'; stage.dataset.fall = 'complete'; } });
+      // Everything the fall disturbs lives inside `fall`: pause(0) resets it, progress(1) settles it.
+      const leaves = q('.intro-leaf');
+      const chips = q('.intro-chip');
+      const puffs = q('.intro-puff');
+      const opening = q('.fs-hole-set');
+      const pools = q('.fs-hero-pool');
+      const shadow = q('.fs-hero-shadow');
+      const log = q('.fs-hero-log');
+      leaves.forEach((el, i) => fall.set(el, { x: LEAVES[i].x0, y: LEAVES[i].y0, rotation: LEAVES[i].r0, opacity: 0 }, 0));
+      chips.forEach((el, i) => fall.set(el, { x: CHIPS[i].x0, y: CHIPS[i].y0, rotation: 0, opacity: 0 }, 0));
+      fall.set(puffs, { opacity: 0 }, 0);
+
       fall.call(() => { mark('O‘rmon jimiydi'); stage.dataset.fall = 'hush'; }, [], 0)
         .to(q('.intro-bird'), { opacity: 0, x: reduced ? 0 : -180, y: reduced ? 0 : -95, stagger: .14, duration: reduced ? .2 : 1.4 }, FALL.birds)
         .to(condition, { health: .22, duration: 1.4 }, FALL.birds)
@@ -124,21 +138,58 @@ export function IntroForest() {
         .call(() => audio.cue('creak'), [], FALL.secondCreak)
         .call(() => { mark('Daraxt qulaydi'); stage.dataset.fall = 'falling'; }, [], FALL.movement);
       if (reduced) {
+        // Same end state, no travel: the settled debris, the open canopy and the light on the stump.
         fall.to(heroTree, { opacity: 0, duration: .2 }, FALL.impact - .2)
-          .to(stump, { opacity: 1, duration: .2 }, FALL.impact);
+          .to(stump, { opacity: 1, duration: .2 }, FALL.impact)
+          .to(log, { opacity: 1, duration: .2 }, FALL.impact)
+          .to(shadow, { opacity: 0, duration: .2 }, FALL.impact)
+          .to(opening, { opacity: 1, duration: .2 }, FALL.impact)
+          .to(pools, { opacity: .9, duration: .2 }, FALL.impact);
+        leaves.forEach((el, i) => fall.set(el, { x: LEAVES[i].x1, y: LEAVES[i].y1, rotation: LEAVES[i].r1 }, FALL.impact - .01).to(el, { opacity: .9, duration: .2 }, FALL.impact));
+        chips.forEach((el, i) => fall.set(el, { x: CHIPS[i].x1, y: CHIPS[i].y1, rotation: CHIPS[i].r1 }, FALL.impact - .01).to(el, { opacity: .9, duration: .2 }, FALL.impact));
       } else {
         fall.to(heroTree, { rotation: -2, svgOrigin: `${HERO.x} ${HERO.y}`, duration: .6, ease: 'sine.inOut' }, FALL.movement)
           .to(heroTree, { rotation: -86, svgOrigin: `${HERO.x} ${HERO.y}`, duration: 1.1, ease: 'power3.in' }, FALL.movement + .6)
           .set(stump, { opacity: 1 }, FALL.impact)
+          .set(log, { opacity: 1 }, FALL.impact)
           .to(heroTree, { opacity: 0, duration: .45 }, FALL.impact + .2)
           .to(forest, { keyframes: { y: [0, 3, -2, 0] }, duration: .32 }, FALL.impact)
+          // The neighbouring forest answers: a brief sway through the mid and near planes.
+          .to([d1, d2], { keyframes: [{ skewX: -1.1, duration: .45 }, { skewX: .7, duration: .6 }, { skewX: -.3, duration: .8 }, { skewX: 0, duration: 1 }], ease: 'sine.inOut' }, FALL.impact - .05)
           .fromTo('.intro-impact', { opacity: 0, scale: .65 }, { opacity: .6, scale: 1, duration: .45, ease: 'power2.out' }, FALL.impact)
-          .to('.intro-impact', { opacity: 0, scale: 1.3, duration: 1.5 }, FALL.impact + .45);
+          .to('.intro-impact', { opacity: 0, scale: 1.3, duration: 1.5 }, FALL.impact + .45)
+          // The crown's shadow leaves the ground; the canopy it filled is now open sky and a shaft of light.
+          .to(shadow, { opacity: 0, duration: .8 }, FALL.impact)
+          .to(opening, { opacity: 1, duration: MOTION.environment + .6 }, FALL.impact + .2)
+          .to(pools, { opacity: .9, duration: MOTION.environment }, FALL.impact + .5);
+        leaves.forEach((el, i) => {
+          const L = LEAVES[i];
+          const start = i < 22 ? FALL.movement + .2 + L.delay : FALL.impact + L.delay;
+          const at = (f: number) => ({ x: L.x0 + (L.x1 - L.x0) * f, y: L.y0 + (L.y1 - L.y0) * f, rotation: L.r0 + (L.r1 - L.r0) * f });
+          fall.to(el, { opacity: .92, duration: .3, ease: 'power1.out' }, start)
+            .to(el, { keyframes: [
+              { ...at(.35), x: L.x0 + (L.x1 - L.x0) * .35 + L.sway, duration: L.dur * .4, ease: 'sine.inOut' },
+              { ...at(.75), x: L.x0 + (L.x1 - L.x0) * .75 - L.sway * .5, duration: L.dur * .35, ease: 'sine.inOut' },
+              { ...at(1), duration: L.dur * .25, ease: 'sine.out' },
+            ] }, start);
+        });
+        chips.forEach((el, i) => {
+          const C = CHIPS[i];
+          fall.set(el, { opacity: .95 }, FALL.impact)
+            .to(el, { keyframes: [
+              { x: C.x0 + (C.x1 - C.x0) * .55, y: C.y0 - C.lift, rotation: C.r1 * .5, duration: C.dur * .45, ease: 'power2.out' },
+              { x: C.x1, y: C.y1, rotation: C.r1, duration: C.dur * .55, ease: 'power2.in' },
+            ] }, FALL.impact);
+        });
+        puffs.forEach((el, i) => {
+          const P = PUFFS[i];
+          fall.fromTo(el, { opacity: 0, scale: .3, y: 0, svgOrigin: `${P.x} ${P.y}` }, { opacity: .55, scale: 1.7, y: -46, duration: .8, ease: 'power2.out' }, FALL.impact + P.delay)
+            .to(el, { opacity: 0, y: -96, scale: 2.1, duration: 2.4, ease: 'sine.out' }, FALL.impact + P.delay + .8);
+        });
       }
       fall.call(() => { audio.cue('impact'); mark('Sukut'); stage.dataset.fall = 'impact'; stage.dataset.impactAt = String(performance.now()); scheduleStatements(); }, [], FALL.impact)
         .to(forest, { '--life': .58, duration: MOTION.environment }, FALL.impact)
-        .to('.intro-gap', { opacity: .7, duration: MOTION.environment }, FALL.impact)
-        .to('.intro-stump-rings', { opacity: .65, duration: duration }, FALL.impact + 1)
+        .to('.intro-stump-rings', { opacity: .85, duration: duration }, FALL.impact + 1)
         .to(condition, { health: .58, hush: .3, duration: MOTION.environment }, FALL.secondLine + .4)
         .set({}, {}, FALL.complete);
 
@@ -177,26 +228,35 @@ export function IntroForest() {
 
   return (
     <Scene chapter="intro" sectionRef={sectionRef} stageRef={stageRef}>
-      <ForestScene hero inscription seed={11} label={T.srTree}>
-        <svg className="intro-overlay" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-          <defs>
-            <radialGradient id="intro-impact-g">
-              <stop offset="0" stopColor="#c9b08a" stopOpacity="0.7" />
-              <stop offset="1" stopColor="#c9b08a" stopOpacity="0" />
-            </radialGradient>
-          </defs>
-          <g className="intro-stump-rings" fill="none" stroke="#c6b78d" strokeWidth="1.5">
-            {[14, 25, 37, 50].map((r) => <ellipse key={r} cx={HERO.x} cy={HERO.y - 7} rx={r} ry={r * .3} />)}
-          </g>
-          {BIRDS.map((b, i) => (
-            <g key={i} className="intro-bird" transform={`translate(${b.x} ${b.y}) scale(${b.s})`}>
-              <path d="M-9,0 Q-4,-6 0,0 Q4,-6 9,0" fill="none" stroke="#07130f" strokeWidth="2.4" strokeLinecap="round" />
+      <ForestScene
+        hero
+        inscription
+        seed={11}
+        label={T.srTree}
+        heroLayer={
+          <>
+            <defs>
+              <radialGradient id="intro-impact-g">
+                <stop offset="0" stopColor="#d8c49a" stopOpacity="0.7" />
+                <stop offset="1" stopColor="#d8c49a" stopOpacity="0" />
+              </radialGradient>
+            </defs>
+            <g className="intro-stump-rings" fill="none" stroke="#7d6038" strokeWidth="1.3">
+              <ellipse cx={HERO.x - 1} cy={STUMP_TOP} rx="43" ry="11.5" fill="#d6c395" stroke="none" />
+              {[9, 18, 27, 36].map((r) => <ellipse key={r} cx={HERO.x - 1} cy={STUMP_TOP} rx={r} ry={r * .26} />)}
             </g>
-          ))}
-          <ellipse className="intro-impact" cx={HERO.x - HERO.h * 0.62} cy={HERO.y - 8} rx="330" ry="70" fill="url(#intro-impact-g)" style={{ transformOrigin: `${HERO.x - HERO.h * 0.62}px ${HERO.y}px` }} />
-        </svg>
-        <div className="intro-gap" aria-hidden="true" />
-      </ForestScene>
+            {BIRDS.map((b, i) => (
+              <g key={i} className="intro-bird" transform={`translate(${b.x} ${b.y}) scale(${b.s})`}>
+                <path d="M-9,0 Q-4,-6 0,0 Q4,-6 9,0" fill="none" stroke="#04201f" strokeWidth="2.4" strokeLinecap="round" />
+              </g>
+            ))}
+            <ellipse className="intro-impact" cx={LANDING.x} cy={HERO.y - 8} rx="330" ry="70" fill="url(#intro-impact-g)" style={{ transformOrigin: `${LANDING.x}px ${HERO.y}px` }} />
+            {PUFFS.map((p, i) => <circle key={i} className="intro-puff" cx={p.x} cy={p.y} r={p.r} fill="url(#intro-impact-g)" />)}
+            {LEAVES.map((l, i) => <g key={i} className="intro-leaf"><path d={l.d} transform={`translate(${-l.half} 0)`} /></g>)}
+            {CHIPS.map((c, i) => <g key={i} className="intro-chip"><path d={c.d} /></g>)}
+          </>
+        }
+      />
       <div className="intro-fogout" aria-hidden="true" />
       <div className="intro-dawn" aria-hidden="true" />
       <div className="scrim-bottom" />

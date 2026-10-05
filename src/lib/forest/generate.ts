@@ -45,30 +45,54 @@ export function coniferPath(h: number, w: number, rng: Rng): string {
 }
 
 function circle(cx: number, cy: number, r: number): string {
-  return `M${r1(cx - r)},${r1(cy)}a${r1(r)},${r1(r)} 0 1,0 ${r1(r * 2)},0a${r1(r)},${r1(r)} 0 1,0 ${r1(-r * 2)},0`;
+  return `M${r1(cx - r)},${r1(cy)}a${r1(r)},${r1(r)} 0 1,1 ${r1(r * 2)},0a${r1(r)},${r1(r)} 0 1,1 ${r1(-r * 2)},0`;
+}
+
+/** A tapered, gently curved limb from (x0,y0) to (x1,y1); w0 is the half-width at the base. */
+function limb(x0: number, y0: number, x1: number, y1: number, w0: number, bend: number): string {
+  const mx = (x0 + x1) / 2 + bend;
+  const my = (y0 + y1) / 2;
+  return `M${r1(x0 - w0)},${r1(y0)}Q${r1(mx - w0 * 0.55)},${r1(my)} ${r1(x1 - 1.1)},${r1(y1)}L${r1(x1 + 1.1)},${r1(y1)}Q${r1(mx + w0 * 0.55)},${r1(my)} ${r1(x0 + w0)},${r1(y0)}Z`;
 }
 
 export function broadleafPath(h: number, w: number, rng: Rng): string {
   const trunkTop = -h * range(rng, 0.42, 0.55);
   const tw = Math.max(2, w * 0.07);
-  let d = `M${r1(-tw * 1.6)},0Q${r1(-tw)},${r1(trunkTop * 0.4)} ${r1(-tw * 0.7)},${r1(trunkTop)}L${r1(tw * 0.7)},${r1(trunkTop)}Q${r1(tw)},${r1(trunkTop * 0.4)} ${r1(tw * 1.6)},0Z`;
-  // Two main limbs into the crown.
-  d += `M${r1(-tw * 0.5)},${r1(trunkTop * 0.9)}L${r1(-w * 0.22)},${r1(trunkTop * 1.25)}L${r1(-w * 0.2)},${r1(trunkTop * 1.3)}L${r1(0)},${r1(trunkTop)}Z`;
-  d += `M${r1(tw * 0.5)},${r1(trunkTop * 0.95)}L${r1(w * 0.24)},${r1(trunkTop * 1.32)}L${r1(w * 0.22)},${r1(trunkTop * 1.36)}L${r1(0)},${r1(trunkTop * 1.02)}Z`;
-  const cy = -h + w * 0.42;
-  const blobs = 11 + Math.floor(rng() * 6);
+  // Trunk with a root flare, then three limbs that carry the crown.
+  let d = `M${r1(-tw * 1.9)},0Q${r1(-tw * 1.05)},${r1(trunkTop * 0.12)} ${r1(-tw * 0.95)},${r1(trunkTop * 0.5)}L${r1(-tw * 0.85)},${r1(trunkTop)}L${r1(tw * 0.85)},${r1(trunkTop)}L${r1(tw * 0.95)},${r1(trunkTop * 0.5)}Q${r1(tw * 1.05)},${r1(trunkTop * 0.12)} ${r1(tw * 1.9)},0Z`;
+  d += limb(-tw * 0.5, trunkTop * 0.96, -w * range(rng, 0.1, 0.18), trunkTop * range(rng, 1.3, 1.42), tw * 0.8, -w * 0.02);
+  d += limb(tw * 0.5, trunkTop * 0.96, w * range(rng, 0.12, 0.2), trunkTop * range(rng, 1.32, 1.46), tw * 0.8, w * 0.02);
+  d += limb(0, trunkTop * 0.98, range(rng, -0.05, 0.05) * w, trunkTop * range(rng, 1.5, 1.62), tw * 0.7, 0);
+  // One side branch low on the trunk.
+  const side = rng() < 0.5 ? -1 : 1;
+  d += limb(side * tw * 0.7, trunkTop * 0.55, side * w * 0.2, trunkTop * 0.7, tw * 0.45, side * w * 0.02);
+
+  // The crown is a lumpy mass: many blobs of very different size, biggest toward the middle,
+  // so the edge is irregular at several scales instead of a row of equal scallops. A skirt of
+  // blobs along the lower rim keeps the crown joined to its limbs.
+  const cy = -h + w * 0.46;
+  const blobs = 22 + Math.floor(rng() * 8);
   for (let i = 0; i < blobs; i++) {
-    const a = (i / blobs) * Math.PI * 2 + rng() * 0.5;
-    const rr = range(rng, 0.12, 0.24) * w;
-    const dist = range(rng, 0.26, 0.38) * w;
-    d += circle(Math.cos(a) * dist * 1.2, cy + Math.sin(a) * dist * 0.78 + w * 0.05, rr);
+    const a = rng() * Math.PI * 2;
+    const rad = Math.sqrt(rng()) * range(rng, 0.4, 0.52);
+    const rr = range(rng, 0.07, 0.21) * w * (1 - rad * 0.5);
+    d += circle(Math.cos(a) * rad * w * 1.2, cy + Math.sin(a) * rad * w * 0.9 + w * 0.08, rr);
   }
-  // Leafy fringe: small lobes on the upper edge.
   for (let i = 0; i < 7; i++) {
-    const a = Math.PI * (1.05 + (i / 6) * 0.9) + range(rng, -0.08, 0.08);
-    d += circle(Math.cos(a) * w * 0.46, cy + Math.sin(a) * w * 0.36, range(rng, 0.06, 0.11) * w);
+    const a = Math.PI * (0.12 + (i / 6) * 0.76) + range(rng, -0.1, 0.1);
+    d += circle(Math.cos(a) * w * range(rng, 0.3, 0.44), cy + w * 0.08 + Math.sin(a) * w * range(rng, 0.36, 0.46), range(rng, 0.08, 0.15) * w);
   }
-  d += circle(0, cy, w * 0.34);
+  d += circle(0, cy, w * 0.3);
+  d += circle(range(rng, -0.12, 0.12) * w, cy - w * 0.06, w * 0.26);
+  // A dense lower belly, so the crown never shows sky between its skirt and its limbs.
+  d += circle(0, cy + w * 0.22, w * 0.3);
+  d += circle(-w * 0.2, cy + w * 0.16, w * 0.22);
+  d += circle(w * 0.2, cy + w * 0.18, w * 0.22);
+  // A few detached leaf clumps at the edge.
+  for (let i = 0; i < 5; i++) {
+    const a = Math.PI * range(rng, 0.05, 1.95);
+    d += circle(Math.cos(a) * w * range(rng, 0.46, 0.56), cy + Math.sin(a) * w * range(rng, 0.3, 0.4), range(rng, 0.035, 0.07) * w);
+  }
   return d;
 }
 
@@ -80,7 +104,7 @@ export function poplarPath(h: number, w: number, rng: Rng): string {
     const t = i / (segs - 1);
     const cy = -h * (0.32 + t * 0.6);
     const rx = (w / 2) * Math.sin(Math.PI * (0.25 + t * 0.7)) * range(rng, 0.85, 1.1);
-    d += `M${r1(-rx)},${r1(cy)}a${r1(rx)},${r1(h * 0.13)} 0 1,0 ${r1(rx * 2)},0a${r1(rx)},${r1(h * 0.13)} 0 1,0 ${r1(-rx * 2)},0`;
+    d += `M${r1(-rx)},${r1(cy)}a${r1(rx)},${r1(h * 0.13)} 0 1,1 ${r1(rx * 2)},0a${r1(rx)},${r1(h * 0.13)} 0 1,1 ${r1(-rx * 2)},0`;
   }
   return d;
 }
@@ -147,6 +171,10 @@ export type LayerSpec = {
   mix?: Partial<Record<TreeKind, number>>;
   /** Leave an empty band (for a path, river or the hero tree) between these x values. */
   gaps?: [number, number][];
+  /** 0..1: pull trunks into groves with glades between them (0 = even rows). */
+  clump?: number;
+  /** Maximum trunk lean in px per 100 px of height. */
+  lean?: number;
 };
 
 function pickKind(rng: Rng, mix: Partial<Record<TreeKind, number>>): TreeKind {
@@ -165,16 +193,30 @@ export function generateLayer(spec: LayerSpec): GeneratedTree[] {
   const width = spec.width ?? 1600;
   const mix = spec.mix ?? { conifer: 0.6, broadleaf: 0.4 };
   const [aMin, aMax] = spec.aspect ?? [0.32, 0.5];
+  const clump = spec.clump ?? 0;
+  const lean = spec.lean ?? 0;
   const trees: GeneratedTree[] = [];
   const step = (width + 200) / spec.count;
+  // Groves: a few seeded centres pull trunks together, leaving glades between them.
+  const centres = clump > 0
+    ? Array.from({ length: Math.max(2, Math.ceil(spec.count / 8)) }, () => ({ x: range(rng, -100, width + 100), size: range(rng, 0.78, 1.18) }))
+    : [];
   for (let i = 0; i < spec.count; i++) {
-    const x = -100 + i * step + range(rng, -step * 0.45, step * 0.45);
+    let x = -100 + i * step + range(rng, -step * 0.45, step * 0.45);
+    let grove = 1;
+    if (centres.length) {
+      const near = centres.reduce((best, c) => (Math.abs(c.x - x) < Math.abs(best.x - x) ? c : best));
+      x += (near.x + range(rng, -step * 1.6, step * 1.6) - x) * clump * 0.7;
+      grove = 1 + (near.size - 1) * clump;
+    }
     if (spec.gaps?.some(([a, b]) => x > a && x < b)) continue;
-    const h = range(rng, spec.minH, spec.maxH);
+    const h = range(rng, spec.minH, spec.maxH) * grove;
     const kind = pickKind(rng, mix);
     const w = h * range(rng, aMin, aMax) * (kind === 'broadleaf' ? 1.5 : kind === 'poplar' ? 0.7 : 1);
     const y = spec.baseY + range(rng, 0, spec.baseJitter ?? 0);
-    trees.push({ id: i, x, y, h, w, kind, d: treePath(kind, h, w, rng), stump: stumpPath(w, rng), order: rng() });
+    const lilt = lean ? range(rng, -lean, lean) / 100 : 0;
+    const d = treePath(kind, h, w, rng);
+    trees.push({ id: i, x, y, h, w, kind, d: lilt ? shearPath(d, lilt) : d, stump: stumpPath(w, rng), order: rng() });
   }
   // Paint far-to-near within the layer.
   return trees.sort((a, b) => a.y - b.y);
@@ -183,6 +225,87 @@ export function generateLayer(spec: LayerSpec): GeneratedTree[] {
 /** Merges a layer into one path string (one DOM node per layer = cheap). */
 export function mergeLayer(trees: GeneratedTree[]): string {
   return trees.map((t) => translatePath(t.d, t.x, t.y)).join('');
+}
+
+/**
+ * Splits a layer into a few tonal groups, each one merged path. Each group gets its
+ * own fill, so a layer reads as individual trees rather than one stencil.
+ */
+export function mergeLayerTones(trees: GeneratedTree[], tones = 3): string[] {
+  const groups: GeneratedTree[][] = Array.from({ length: tones }, () => []);
+  for (const t of trees) groups[Math.min(tones - 1, Math.floor(t.order * tones))].push(t);
+  return groups.map(mergeLayer);
+}
+
+/** Shears a local tree path so its trunk leans: x grows with height above the base. */
+export function shearPath(d: string, lean: number): string {
+  return d.replace(/([MLQ])([^MLQZa]+)/g, (_m, cmd: string, args: string) => {
+    const nums = args.trim().split(/[\s,]+/).map(Number);
+    const out: string[] = [];
+    for (let i = 0; i < nums.length; i += 2) out.push(`${r1(nums[i] - nums[i + 1] * lean)},${r1(nums[i + 1])}`);
+    return cmd + out.join(' ');
+  });
+}
+
+/** A pointed leaf blade from (0,0) toward +x. */
+export function leafPath(len: number, wid: number): string {
+  return `M0,0Q${r1(len * 0.35)},${r1(-wid)} ${r1(len)},0Q${r1(len * 0.35)},${r1(wid * 0.8)} 0,0Z`;
+}
+
+/**
+ * A branch entering the frame from a corner: a tapering limb plus leaf clusters.
+ * Coordinates are in the 1600×900 scene space; `dir` is +1 for the left edge, -1 for the right.
+ */
+export function overhangBranch(seed: number, x0: number, y0: number, dir: 1 | -1, reach: number, droop: number): { limb: string; leaves: string; twigs: string } {
+  const rng = mulberry32(seed);
+  const pts: [number, number][] = [];
+  const steps = 7;
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    pts.push([x0 + dir * reach * t + range(rng, -6, 6), y0 + droop * Math.pow(t, 1.6) + Math.sin(t * 5 + seed) * 10]);
+  }
+  const wBase = 34;
+  let top = `M${r1(pts[0][0])},${r1(pts[0][1] - wBase)}`;
+  let bottom = '';
+  for (let i = 1; i <= steps; i++) {
+    const w = Math.max(1.2, wBase * (1 - i / steps) ** 1.4);
+    top += `L${r1(pts[i][0])},${r1(pts[i][1] - w)}`;
+    bottom = `L${r1(pts[i][0])},${r1(pts[i][1] + w)}` + bottom;
+  }
+  const limb = top + bottom + `L${r1(pts[0][0])},${r1(pts[0][1] + wBase)}Z`;
+  let leaves = '';
+  let twigs = '';
+  for (let i = 2; i <= steps; i++) {
+    const [px, py] = pts[i];
+    const clusters = 2 + Math.floor(rng() * 2);
+    for (let c = 0; c < clusters; c++) {
+      const a = range(rng, -1.15, 1.15) + (dir === 1 ? 0 : Math.PI);
+      const l = range(rng, 70, 150) * (1.1 - i / (steps * 1.6));
+      const ex = px + Math.cos(a) * l * 0.6;
+      const ey = py + Math.sin(a) * l * 0.6 + 40;
+      twigs += `M${r1(px)},${r1(py)}L${r1(ex)},${r1(ey)}`;
+      for (let k = 0; k < 6; k++) {
+        const la = a + range(rng, -1.2, 1.2);
+        const leaf = leafPath(range(rng, 46, 96), range(rng, 12, 24));
+        const lx = ex + range(rng, -22, 22);
+        const ly = ey + range(rng, -22, 22);
+        leaves += rotateTranslate(leaf, lx, ly, la);
+      }
+    }
+  }
+  return { limb, leaves, twigs };
+}
+
+/** Rotates then translates a local path (absolute M/L/Q only). */
+export function rotateTranslate(d: string, x: number, y: number, angle: number): string {
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  return d.replace(/([MLQ])([^MLQZa]+)/g, (_m, cmd: string, args: string) => {
+    const nums = args.trim().split(/[\s,]+/).map(Number);
+    const out: string[] = [];
+    for (let i = 0; i < nums.length; i += 2) out.push(`${r1(nums[i] * cos - nums[i + 1] * sin + x)},${r1(nums[i] * sin + nums[i + 1] * cos + y)}`);
+    return cmd + out.join(' ');
+  });
 }
 
 /** Wraps a local path so it renders at (x,y) without a transform attribute. */

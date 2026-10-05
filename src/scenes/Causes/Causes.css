@@ -1,5 +1,6 @@
 .cz-stage {
-  background: radial-gradient(ellipse at 35% 50%, #0f1f19 0%, var(--forest-dark) 65%);
+  background:
+    radial-gradient(ellipse at 34% 46%, #1d3326 0%, #0c1812 58%, #050b09 100%);
 }
 .cz-layout {
   position: absolute;
@@ -37,10 +38,13 @@
   stroke-width: 1.2;
 }
 .cz-floor {
-  fill: #0e1d15;
+  fill: #12261a;
 }
+.cz-light { pointer-events: none; }
 .cz-tree {
-  fill: color-mix(in oklab, #1f3d2a calc((1 - var(--tone)) * 100%), #3d6b40);
+  fill: color-mix(in oklab, #1a4a31 calc((1 - var(--tone)) * 100%), #6aa152);
+  stroke: rgb(4 22 12 / 55%);
+  stroke-width: 1.4;
   transform-box: fill-box;
   transform-origin: center;
   transition:
@@ -137,22 +141,23 @@
   min-width: 44px;
   min-height: 44px;
 }
+/* A point of pressure and a word, not a button: the ring itself is the instrument. */
 .cz-driver-arrow {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  border: 1.5px solid var(--ochre);
-  background: rgb(4 8 7 / 55%);
+  border: 1px solid rgb(232 190 120 / 55%);
   position: relative;
-  transition: background var(--dur-quick) var(--ease-out);
+  transition: border-color var(--dur-quick) var(--ease-out);
 }
 .cz-driver-arrow::after {
   content: '';
   position: absolute;
   inset: 7px;
-  background: var(--ochre);
+  background: #f0cf86;
   clip-path: polygon(0 20%, 100% 50%, 0 80%);
   rotate: var(--angle);
+  filter: drop-shadow(0 0 5px rgb(246 221 148 / 70%));
 }
 .cz-driver-label {
   font-family: var(--font-mono);
@@ -160,16 +165,13 @@
   letter-spacing: 0.05em;
   color: var(--text-primary);
   white-space: nowrap;
-  padding: 0.2em 0.5em;
-  background: rgb(4 8 7 / 55%);
-  border-radius: var(--radius-hair);
+  padding: 0 0 0.15em;
+  border-bottom: 1px solid rgb(243 223 174 / 40%);
+  text-shadow: 0 0 12px rgb(2 8 8 / 90%), 0 1px 3px rgb(2 8 8 / 90%);
 }
 .cz-driver:hover .cz-driver-arrow,
 .cz-driver[aria-pressed='true'] .cz-driver-arrow {
-  background: var(--ochre);
-}
-.cz-driver[aria-pressed='true'] .cz-driver-arrow::after {
-  background: var(--forest-dark);
+  border-color: #fff1c2;
 }
 .cz-driver[aria-pressed='true'] .cz-driver-label {
   color: var(--sunlight-soft);

@@ -13,6 +13,16 @@ type Props = {
   className?: string;
   seed?: number;
   size?: [number, number];
+  /**
+   * Motes show only inside these light bands (scene coordinates of a 1600×900 viewBox,
+   * `slice`d like the forest SVGs; `slope` is x travelled per unit of y). Without it they show everywhere.
+   */
+  light?: { bands: { x: number; w: number; strength: number }[]; slope: number; /** No motes below this scene y (e.g. the ground line of a cross-section). */ maxY?: number };
+};
+
+const smooth = (a: number, b: number, x: number) => {
+  const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
+  return t * t * (3 - 2 * t);
 };
 
 type Mote = { x: number; y: number; r: number; phase: number; speed: number; depth: number };
@@ -23,10 +33,13 @@ type Mote = { x: number; y: number; r: number; phase: number; speed: number; dep
  * The visible amount can be changed from GSAP by tweening `--intensity`-like
  * attribute `data-intensity` on the canvas (read every frame).
  */
-export function DustField({ count = 60, color = '#f3dfae', wind = { x: 6, y: -3 }, intensity = 1, className, seed = 7, size = [0.6, 2.2] }: Props) {
+export function DustField({ count = 60, color = '#f3dfae', wind = { x: 6, y: -3 }, intensity = 1, className, seed = 7, size = [0.6, 2.2], light }: Props) {
   const ref = useRef<HTMLCanvasElement>(null);
   const reduced = useReducedMotion();
   const [s0, s1] = size;
+  const bands = light?.bands;
+  const slope = light?.slope ?? 0;
+  const maxY = light?.maxY ?? Infinity;
 
   useEffect(() => {
     const canvas = ref.current;
@@ -64,6 +77,21 @@ export function DustField({ count = 60, color = '#f3dfae', wind = { x: 6, y: -3 
     let last = performance.now();
     let visible = true;
 
+    // The scene SVGs are `xMidYMax slice`d; band geometry must follow the same mapping.
+    const lightAt = (px: number, py: number): number => {
+      if (!bands) return 1;
+      const s = Math.max(w / 1600, h / 900);
+      const sx = (px - (w - 1600 * s) / 2) / s;
+      const sy = (py - (h - 900 * s)) / s;
+      if (sy > maxY) return 0;
+      let best = 0;
+      for (const b of bands) {
+        const edge = Math.abs(sx - (b.x + slope * (sy + 80))) / (b.w * 0.62);
+        best = Math.max(best, b.strength * (1 - smooth(0.3, 1, edge)));
+      }
+      return best;
+    };
+
     const draw = (dt: number) => {
       const k = Number(canvas.dataset.intensity ?? intensity);
       ctx.clearRect(0, 0, w, h);
@@ -81,7 +109,9 @@ export function DustField({ count = 60, color = '#f3dfae', wind = { x: 6, y: -3 
           if (m.y < -10) m.y = h + 10;
           if (m.y > h + 10) m.y = -10;
         }
-        ctx.globalAlpha = (0.25 + 0.55 * (0.5 + 0.5 * Math.sin(m.phase * 1.3))) * m.depth * Math.min(1, k);
+        const lit = lightAt(m.x, m.y);
+        if (lit < 0.03) continue;
+        ctx.globalAlpha = (0.25 + 0.55 * (0.5 + 0.5 * Math.sin(m.phase * 1.3))) * m.depth * Math.min(1, k) * lit;
         ctx.beginPath();
         ctx.arc(m.x, m.y, m.r * m.depth, 0, Math.PI * 2);
         ctx.fill();
@@ -127,7 +157,7 @@ export function DustField({ count = 60, color = '#f3dfae', wind = { x: 6, y: -3 
       mo.disconnect();
       document.removeEventListener('visibilitychange', onVis);
     };
-  }, [count, color, wind.x, wind.y, intensity, reduced, seed, s0, s1]);
+  }, [count, color, wind.x, wind.y, intensity, reduced, seed, s0, s1, bands, slope, maxY]);
 
   return <canvas ref={ref} className={className} aria-hidden="true" data-intensity={intensity} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }} />;
 }

@@ -23,11 +23,21 @@ export const AralMap = memo(function AralMap() {
   return (
     <svg className="ar-map" viewBox="80 40 680 760" preserveAspectRatio="xMidYMid meet" role="img" aria-label={`${T.mapNote} ${T.cause}`}>
       <defs>
+        <linearGradient id="ar-water-g" x1="0.2" y1="0" x2="0.8" y2="1">
+          <stop offset="0" stopColor="#7cc2c4" />
+          <stop offset="0.55" stopColor="#3f8189" />
+          <stop offset="1" stopColor="#1f4f5a" />
+        </linearGradient>
+        <radialGradient id="ar-land-g" cx="50%" cy="46%" r="70%">
+          <stop offset="0" stopColor="#4a3b27" />
+          <stop offset="0.7" stopColor="#2a2118" />
+          <stop offset="1" stopColor="#15110c" />
+        </radialGradient>
         <pattern id="ar-hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
           <line x1="0" y1="0" x2="0" y2="8" stroke="#b98a4b" strokeWidth="1" opacity="0.35" />
         </pattern>
       </defs>
-      <rect x="-2000" y="-2000" width="5000" height="5000" className="ar-land" />
+      <rect x="-2000" y="-2000" width="5000" height="5000" fill="url(#ar-land-g)" className="ar-land" />
       {/* Former seabed (appears as the water retreats) */}
       <path d={SHAPES.south1960} fill="url(#ar-hatch)" className="ar-seabed" />
       <path d={SHAPES.north1960} fill="url(#ar-hatch)" className="ar-seabed" />

@@ -55,7 +55,7 @@ export function DeforestationReveal() {
       tl.fromTo('.dr-glare', { opacity: 0 }, { opacity: 0.55, duration: LOSS_SPAN * 0.5 }, at(0.45))
         .fromTo('.dr-far-forest', { opacity: 1 }, { opacity: 0.25, duration: LOSS_SPAN * 0.8 }, at(0.15))
         .fromTo('.dr-plume', { opacity: 0 }, { opacity: 1, duration: LOSS_SPAN * 0.45 }, at(0.45))
-        .fromTo('.dr-runoff-path', { opacity: 0, drawSVG: '0%' }, { opacity: 1, drawSVG: '100%', duration: 8, stagger: 1.5 }, at(0.36))
+        .fromTo('.dr-runoff-path', { opacity: 0 }, { opacity: 0.9, duration: 8, stagger: 1.5 }, at(0.36))
         .fromTo('.dr-gully', { drawSVG: '0%' }, { drawSVG: '100%', duration: 14, stagger: 2 }, at(0.55));
 
       // Trees fall along the clearing frontier.

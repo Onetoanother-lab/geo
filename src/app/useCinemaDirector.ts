@@ -11,7 +11,7 @@ const CONSUMERS = {
   '--ecology': '.dr-mist, .dr-watershine, .dr-shadow',
   '--shade': '.scene-light',
   '--exposure': '.scene-light',
-  '--pulse': '.fs-shaft, .fs-water-line, .fs-roots, .ls-roots',
+  '--pulse': '.fs-shaft-set, .fs-water-line, .fs-roots, .ls-roots',
 } as const;
 
 /** One low-frequency director; scene timelines remain the owners of geometry. */
@@ -60,7 +60,7 @@ export function useCinemaDirector() {
       const saturation = `saturate(${(Math.round(sceneSaturation(s.chapterId, p, health) * 20) / 20).toFixed(2)})`;
       if (written.get('filter') !== saturation) {
         written.set('filter', saturation);
-        stage.querySelectorAll<HTMLElement>('.forest-scene, .dr-scene, .rc-scene').forEach((el) => { el.style.filter = saturation; });
+        stage.querySelectorAll<HTMLElement>('.forest-scene, .dr-scene, .rc-scene, .ls-palette').forEach((el) => { el.style.filter = saturation; });
       }
       const quiet = String(health < 0.18 || reduced);
       if (stage.dataset.quiet !== quiet) stage.dataset.quiet = quiet;

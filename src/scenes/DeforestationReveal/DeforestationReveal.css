@@ -32,6 +32,41 @@
 .dr-far-forest {
   fill: var(--tree-far);
 }
+.dr-far-forest--mid {
+  fill: var(--tree-farmid);
+}
+.dr-bare {
+  fill: var(--ground-bare);
+  opacity: clamp(0, calc((0.85 - var(--life)) * 1.4), 0.9);
+}
+/* Direct light grows harsher as the canopy that filtered it goes. */
+.dr-shafts {
+  opacity: calc(0.2 + (1 - var(--life)) * 0.5);
+}
+/* The foreground is the first thing a clearing takes from the frame. */
+.dr-grass { fill: var(--tree-front); opacity: clamp(0, calc((var(--life) - 0.3) * 2.4), 1); }
+.dr-trunks { opacity: clamp(0, calc((var(--life) - 0.42) * 5), 1); }
+.dr-trunk { fill: var(--tree-front); }
+.dr-bark { fill: none; stroke: color-mix(in oklab, var(--tree-front) 62%, var(--tree-mid)); stroke-width: 1.7; stroke-linecap: round; opacity: 0.7; }
+.dr-rim { fill: var(--rim); opacity: calc(0.28 + var(--life) * 0.3); }
+.dr-branch { fill: var(--tree-front); opacity: clamp(0, calc((var(--life) - 0.55) * 5), 1); }
+/* Once the sky has bleached, light type would vanish into it: the words turn to ink. */
+.dr-moment, .dr-prompt, .dr-stat, .dr-stat .stat-value, .dr-stat .stat-label, .dr-stat .stat-unit {
+  transition: color var(--dur-slow) var(--ease-out), text-shadow var(--dur-slow) var(--ease-out);
+}
+.dr-stage[data-loss='high'] .dr-moment,
+.dr-stage[data-loss='high'] .dr-prompt,
+.dr-stage[data-loss='high'] .dr-stat,
+.dr-stage[data-loss='high'] .dr-stat .stat-value,
+.dr-stage[data-loss='high'] .dr-stat .stat-label,
+.dr-stage[data-loss='high'] .dr-stat .stat-unit,
+.dr-stage[data-loss='high'] .dr-stat .label {
+  color: #2a231b;
+  text-shadow: 0 1px 20px rgb(246 238 224 / 70%);
+}
+.dr-stage[data-loss='high'] .dr-stat .stat-meta,
+.dr-stage[data-loss='high'] .dr-stat .stat-source { color: #4f4435; }
+.dr-twigs { fill: none; stroke: var(--tree-front); stroke-width: 3.2; stroke-linecap: round; }
 .dr-ground {
   fill: var(--ground);
 }
@@ -51,17 +86,18 @@
 }
 .dr-runoff-path {
   fill: none;
-  stroke: #c9b08a;
-  stroke-width: 2;
-  stroke-dasharray: 6 8;
+  stroke: #e2cc9f;
+  stroke-width: 3.2;
+  stroke-dasharray: 0.1 11;
+  stroke-linecap: round;
   opacity: 0;
 }
 .dr-stump {
-  fill: #4b3a2a;
+  fill: #6e5538;
   opacity: 0;
 }
 .dr-soil {
-  fill: #7a5a3a;
+  fill: #8d6a45;
   opacity: 0;
 }
 .dr-deer path {
@@ -147,12 +183,10 @@
   right: calc(var(--gutter) + 1.5rem);
   bottom: clamp(5.5rem, 13vh, 8rem);
   z-index: var(--z-interaction);
-  width: min(17rem, 34vw);
+  width: min(15rem, 30vw);
   display: grid;
-  gap: 0.55rem;
-  padding: var(--space-4);
-  background: linear-gradient(to left, rgb(4 8 7 / 62%), rgb(4 8 7 / 30%));
-  border-left: var(--rule);
+  gap: 0.5rem;
+  text-shadow: 0 1px 14px rgb(0 0 0 / 85%), 0 0 3px rgb(0 0 0 / 70%);
 }
 .dr-indicator {
   display: grid;

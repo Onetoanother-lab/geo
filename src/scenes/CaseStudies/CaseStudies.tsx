@@ -178,6 +178,13 @@ function Uzbekistan() {
 function UzMap({ feature }: { feature: CountryFeature }) {
   return (
     <svg className="cs-uz" viewBox="0 0 640 420" role="img" aria-label={`${T.uzbekistan.title}: ${T.uzbekistan.mountains}, ${T.uzbekistan.desert}, ${T.uzbekistan.aral}`}>
+      <defs>
+        <linearGradient id="cs-uz-sand" x1="0.2" y1="0" x2="0.8" y2="1">
+          <stop offset="0" stopColor="#8a6a3e" />
+          <stop offset="0.6" stopColor="#5a4326" />
+          <stop offset="1" stopColor="#33250f" />
+        </linearGradient>
+      </defs>
       <CountryOutline feature={feature} />
       <path d="M330,250Q240,200 140,120" className="cs-uz-route" />
       <g transform="translate(140 110)" className="cs-uz-zone cs-uz-zone--aral">
